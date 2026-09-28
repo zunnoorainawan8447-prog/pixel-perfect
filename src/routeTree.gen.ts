@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
@@ -27,6 +30,11 @@ const AssistantRoute = AssistantRouteImport.update({
   path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookmarksRoute = BookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExamRoute = ExamRouteImport.update({
   id: '/exam',
   path: '/exam',
@@ -35,6 +43,16 @@ const ExamRoute = ExamRouteImport.update({
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TopicsRoute = TopicsRouteImport.update({
@@ -56,8 +74,11 @@ const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/bookmarks': typeof BookmarksRoute
   '/exam': typeof ExamRoute
   '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/topics': typeof TopicsRouteWithChildren
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics/': typeof TopicsIndexRoute
@@ -65,8 +86,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/bookmarks': typeof BookmarksRoute
   '/exam': typeof ExamRoute
   '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics': typeof TopicsIndexRoute
 }
@@ -74,8 +98,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistant': typeof AssistantRoute
+  '/bookmarks': typeof BookmarksRoute
   '/exam': typeof ExamRoute
   '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/topics': typeof TopicsRouteWithChildren
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics/': typeof TopicsIndexRoute
@@ -85,20 +112,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/bookmarks'
     | '/exam'
     | '/practice'
+    | '/progress'
+    | '/settings'
     | '/topics'
     | '/topics/$topicId'
     | '/topics/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/assistant' | '/exam' | '/practice' | '/topics/$topicId' | '/topics'
+    | '/'
+    | '/assistant'
+    | '/bookmarks'
+    | '/exam'
+    | '/practice'
+    | '/progress'
+    | '/settings'
+    | '/topics/$topicId'
+    | '/topics'
   id:
     | '__root__'
     | '/'
     | '/assistant'
+    | '/bookmarks'
     | '/exam'
     | '/practice'
+    | '/progress'
+    | '/settings'
     | '/topics'
     | '/topics/$topicId'
     | '/topics/'
@@ -107,8 +148,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistantRoute: typeof AssistantRoute
+  BookmarksRoute: typeof BookmarksRoute
   ExamRoute: typeof ExamRoute
   PracticeRoute: typeof PracticeRoute
+  ProgressRoute: typeof ProgressRoute
+  SettingsRoute: typeof SettingsRoute
   TopicsRoute: typeof TopicsRouteWithChildren
 }
 
@@ -128,6 +172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bookmarks': {
+      id: '/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof BookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exam': {
       id: '/exam'
       path: '/exam'
@@ -140,6 +191,20 @@ declare module '@tanstack/react-router' {
       path: '/practice'
       fullPath: '/practice'
       preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/topics': {
@@ -182,8 +247,11 @@ const TopicsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistantRoute: AssistantRoute,
+  BookmarksRoute: BookmarksRoute,
   ExamRoute: ExamRoute,
   PracticeRoute: PracticeRoute,
+  ProgressRoute: ProgressRoute,
+  SettingsRoute: SettingsRoute,
   TopicsRoute: TopicsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
