@@ -29,7 +29,7 @@ function Home() {
     useProgress();
 
   const nextTopic =
-    TOPICS.find((topic) => topic.sections.some((s) => !completedSections.includes(s.id))) ?? TOPICS[0];
+    TOPICS.find((topic) => topic.sections.some((s) => !completedSections.includes(s.id))) ?? TOPICS[0]!;
   const done = nextTopic.sections.filter((s) => completedSections.includes(s.id)).length;
   const percent = Math.round((done / nextTopic.sections.length) * 100);
 

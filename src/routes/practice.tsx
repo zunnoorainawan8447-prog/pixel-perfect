@@ -8,13 +8,14 @@ import { useProgress } from "@/lib/progress";
 type Search = { topic?: string; difficulty?: "easy" | "medium" | "hard" };
 
 export const Route = createFileRoute("/practice")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    topic: typeof search.topic === "string" ? search.topic : undefined,
-    difficulty:
-      search.difficulty === "easy" || search.difficulty === "medium" || search.difficulty === "hard"
-        ? search.difficulty
-        : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): Search => {
+    const topic = search["topic"];
+    const difficulty = search["difficulty"];
+    const out: Search = {};
+    if (typeof topic === "string") out.topic = topic;
+    if (difficulty === "easy" || difficulty === "medium" || difficulty === "hard") out.difficulty = difficulty;
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Practice questions — CITIZEN/PREP" },
@@ -48,7 +49,7 @@ function PracticePage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const question = pool[i % pool.length];
+  const question = pool[i % pool.length]!;
   const translation = getLanguage(studyLang).study;
   const isCorrect = submitted && selected === question.answerIndex;
 
@@ -74,7 +75,8 @@ function PracticePage() {
           <select
             value={search.topic ?? ""}
             onChange={(e) => {
-              navigate({ search: { ...search, topic: e.target.value || undefined } });
+              const value = e.target.value;
+              navigate({ search: value ? { ...search, topic: value } : { ...search, topic: undefined } });
               setI(0);
               setSubmitted(false);
               setSelected(null);
@@ -91,7 +93,8 @@ function PracticePage() {
           <select
             value={search.difficulty ?? ""}
             onChange={(e) => {
-              navigate({ search: { ...search, difficulty: (e.target.value || undefined) as Search["difficulty"] } });
+              const value = e.target.value as NonNullable<Search["difficulty"]> | "";
+              navigate({ search: value ? { ...search, difficulty: value } : { ...search, difficulty: undefined } });
               setI(0);
               setSubmitted(false);
               setSelected(null);

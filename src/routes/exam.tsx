@@ -89,7 +89,7 @@ function ExamPage() {
   if (result) return <Results result={result} onRetry={() => setResult(null)} />;
 
   if (activeExam) {
-    const qid = activeExam.questionIds[activeExam.index];
+    const qid = activeExam.questionIds[activeExam.index]!;
     const q = questionById(qid)!;
     const answered = Object.keys(activeExam.answers).length;
     return (
@@ -334,7 +334,7 @@ function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void 
               <div key={id} className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
                 <p className="text-sm font-semibold text-pretty">{pick(q.prompt, studyLang).text}</p>
                 <p className="mt-1 text-sm text-verified">
-                  {pick(q.options[q.answerIndex], studyLang).text}
+                  {pick(q.options[q.answerIndex]!, studyLang).text}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground text-pretty">
                   {pick(q.explanation, studyLang).text}

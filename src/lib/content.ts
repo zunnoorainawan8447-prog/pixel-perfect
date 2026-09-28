@@ -44,7 +44,7 @@ export const LANGUAGES: Language[] = [
 ];
 
 export function getLanguage(code: LangCode): Language {
-  return LANGUAGES.find((l) => l.code === code) ?? LANGUAGES[0];
+  return LANGUAGES.find((l) => l.code === code) ?? LANGUAGES[0]!;
 }
 
 /** A value that may be translated. `en` is always present. */
@@ -714,7 +714,9 @@ export function shuffled<T>(items: T[]): T[] {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+    const tmp = copy[i]!;
+    copy[i] = copy[j]!;
+    copy[j] = tmp;
   }
   return copy;
 }

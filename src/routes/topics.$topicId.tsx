@@ -33,7 +33,7 @@ function TopicPage() {
   const { studyLang, t, set } = useSettings();
   const { completedSections, bookmarkedSections, toggleSectionComplete, toggleSectionBookmark } = useProgress();
   const [index, setIndex] = useState(0);
-  const section = topic.sections[index];
+  const section = topic.sections[index]!;
   const translation = getLanguage(studyLang).study;
 
   return (

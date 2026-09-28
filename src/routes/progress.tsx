@@ -88,7 +88,7 @@ function ProgressPage() {
             return (
               <div key={id} className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
                 <p className="text-sm text-pretty">{pick(q.prompt, studyLang).text}</p>
-                <p className="mt-1 text-sm text-verified">{pick(q.options[q.answerIndex], studyLang).text}</p>
+                <p className="mt-1 text-sm text-verified">{pick(q.options[q.answerIndex]!, studyLang).text}</p>
                 <p className="mt-1 text-sm text-muted-foreground text-pretty">
                   {pick(q.explanation, studyLang).text}
                 </p>
