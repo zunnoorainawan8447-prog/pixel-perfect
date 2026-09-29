@@ -5,7 +5,7 @@ import { QUESTIONS, TOPICS, getLanguage, pick, shuffled } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress } from "@/lib/progress";
 
-type Search = { topic?: string; difficulty?: "easy" | "medium" | "hard" };
+type Search = { topic?: string | undefined; difficulty?: "easy" | "medium" | "hard" | undefined };
 
 export const Route = createFileRoute("/practice")({
   validateSearch: (search: Record<string, unknown>): Search => {

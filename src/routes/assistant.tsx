@@ -5,8 +5,8 @@ import { QUESTIONS, TOPICS, OFFICIAL_LINKS } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/assistant")({
-  validateSearch: (search: Record<string, unknown>): { q?: string } => ({
-    q: typeof search.q === "string" ? search.q : undefined,
+  validateSearch: (search: Record<string, unknown>): { q?: string | undefined } => ({
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
   }),
   head: () => ({
     meta: [
@@ -26,8 +26,8 @@ export const Route = createFileRoute("/assistant")({
 type Message = {
   role: "user" | "assistant";
   text: string;
-  sourceTitle?: string;
-  sourceUrl?: string;
+  sourceTitle?: string | undefined;
+  sourceUrl?: string | undefined;
   grounded: boolean;
 };
 
@@ -49,7 +49,7 @@ function demoAnswer(input: string): Message {
   const text = input.toLowerCase();
   const words = text.split(/[^a-z]+/).filter((w) => w.length > 3);
 
-  let best: { score: number; answer: string; title: string; url?: string } | null = null;
+  let best: { score: number; answer: string; title: string; url?: string | undefined } | null = null;
 
   for (const topic of TOPICS) {
     for (const section of topic.sections) {
@@ -72,7 +72,7 @@ function demoAnswer(input: string): Message {
     if (score > 1 && (!best || score > best.score)) {
       best = {
         score,
-        answer: `${q.options[q.answerIndex].en}. ${q.explanation.en}`,
+        answer: `${q.options[q.answerIndex]!.en}. ${q.explanation.en}`,
         title: q.source.sourceTitle,
         url: q.source.sourceUrl,
       };
