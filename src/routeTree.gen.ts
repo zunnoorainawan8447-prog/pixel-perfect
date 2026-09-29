@@ -17,6 +17,7 @@ import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TopicsRouteImport } from './routes/topics'
+import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 
@@ -60,6 +61,11 @@ const TopicsRoute = TopicsRouteImport.update({
   path: '/topics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TopicsIndexRoute = TopicsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/topics': typeof TopicsRouteWithChildren
+  '/api/assistant': typeof ApiAssistantRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics/': typeof TopicsIndexRoute
 }
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics': typeof TopicsIndexRoute
 }
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/progress': typeof ProgressRoute
   '/settings': typeof SettingsRoute
   '/topics': typeof TopicsRouteWithChildren
+  '/api/assistant': typeof ApiAssistantRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/topics/': typeof TopicsIndexRoute
 }
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/settings'
     | '/topics'
+    | '/api/assistant'
     | '/topics/$topicId'
     | '/topics/'
   fileRoutesByTo: FileRoutesByTo
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/progress'
     | '/settings'
+    | '/api/assistant'
     | '/topics/$topicId'
     | '/topics'
   id:
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/settings'
     | '/topics'
+    | '/api/assistant'
     | '/topics/$topicId'
     | '/topics/'
   fileRoutesById: FileRoutesById
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   ProgressRoute: typeof ProgressRoute
   SettingsRoute: typeof SettingsRoute
   TopicsRoute: typeof TopicsRouteWithChildren
+  ApiAssistantRoute: typeof ApiAssistantRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TopicsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/topics/': {
       id: '/topics/'
       path: '/'
@@ -253,6 +273,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgressRoute: ProgressRoute,
   SettingsRoute: SettingsRoute,
   TopicsRoute: TopicsRouteWithChildren,
+  ApiAssistantRoute: ApiAssistantRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

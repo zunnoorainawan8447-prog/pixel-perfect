@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue, StatusPill } from "@/components/ui-kit";
-import { QUESTIONS, TOPICS, OFFICIAL_LINKS } from "@/lib/content";
+import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue } from "@/components/ui-kit";
 import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/assistant")({
@@ -14,7 +13,7 @@ export const Route = createFileRoute("/assistant")({
       {
         name: "description",
         content:
-          "Ask questions about the study material and get plain-language answers with the source shown. Demo responses in this prototype.",
+          "Ask questions about the study material and get plain-language answers with the source shown. AI answers grounded in approved study content, with sources.",
       },
       { property: "og:title", content: "Study assistant — CITIZEN/PREP" },
       { property: "og:description", content: "Plain-language answers grounded in this app's approved study content." },
@@ -23,13 +22,20 @@ export const Route = createFileRoute("/assistant")({
   component: AssistantPage,
 });
 
-type Message = {
-  role: "user" | "assistant";
-  text: string;
-  sourceTitle?: string | undefined;
-  sourceUrl?: string | undefined;
-  grounded: boolean;
-};
+type Source = { title: string; sourceTitle: string; url?: string | undefined; lastVerifiedAt: string };
+type Message =
+  | { role: "user"; text: string }
+  | {
+      role: "assistant";
+      status: "answered" | "not_found" | "out_of_scope" | "error";
+      answer: string;
+      explanation: string;
+      whyItMatters: string;
+      vocabulary: string;
+      sources: Source[];
+      question: string;
+      feedback?: "up" | "down" | undefined;
+    };
 
 const STARTERS = [
   "What are the three parts of Parliament?",
@@ -38,199 +44,269 @@ const STARTERS = [
   "What does the knowledge test cover?",
 ];
 
-/**
- * Local, offline demo answering. It only answers from the app's own content —
- * never invents facts, and says so when it has no grounded passage.
- *
- * Replace this with a server function that calls a model with retrieval over
- * the same content collection; the API key must stay server-side.
- */
-function demoAnswer(input: string): Message {
-  const text = input.toLowerCase();
-  const words = text.split(/[^a-z]+/).filter((w) => w.length > 3);
+const ANSWER_LANGS: { code: string; label: string }[] = [
+  { code: "en", label: "English" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
+  { code: "pa", label: "ਪੰਜਾਬੀ" },
+  { code: "ur", label: "اردو" },
+  { code: "ar", label: "العربية" },
+  { code: "hi", label: "हिन्दी" },
+  { code: "zh-Hans", label: "简体中文" },
+  { code: "tl", label: "Tagalog" },
+  { code: "de", label: "Deutsch" },
+  { code: "pt", label: "Português" },
+];
+const RTL = new Set(["ur", "ar"]);
 
-  let best: { score: number; answer: string; title: string; url?: string | undefined } | null = null;
-
-  for (const topic of TOPICS) {
-    for (const section of topic.sections) {
-      const hay = `${section.title.en} ${section.body.map((b) => b.en).join(" ")}`.toLowerCase();
-      const score = words.filter((w) => hay.includes(w)).length;
-      if (score > 0 && (!best || score > best.score)) {
-        best = {
-          score,
-          answer: section.body.map((b) => b.en).join(" "),
-          title: `${topic.title.en} — ${section.title.en}`,
-          url: topic.source.sourceUrl,
-        };
-      }
-    }
-  }
-
-  for (const q of QUESTIONS) {
-    const hay = `${q.prompt.en} ${q.explanation.en}`.toLowerCase();
-    const score = words.filter((w) => hay.includes(w)).length + 1;
-    if (score > 1 && (!best || score > best.score)) {
-      best = {
-        score,
-        answer: `${q.options[q.answerIndex]!.en}. ${q.explanation.en}`,
-        title: q.source.sourceTitle,
-        url: q.source.sourceUrl,
-      };
-    }
-  }
-
-  if (!best) {
+async function ask(question: string, lang: string, simple: boolean): Promise<Message> {
+  try {
+    const res = await fetch("/api/assistant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, lang, simple }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
+    return { role: "assistant", question, ...data };
+  } catch (e) {
     return {
       role: "assistant",
-      grounded: false,
-      text: "I don't have approved study material covering that, so I won't guess. Try rephrasing, or check the official Government of Canada citizenship pages. I can't give legal or immigration advice — for a personal case, contact IRCC or a qualified professional.",
-      sourceTitle: "Government of Canada — citizenship test",
-      sourceUrl: OFFICIAL_LINKS.test,
+      status: "error",
+      answer: e instanceof Error && e.message ? e.message : "Couldn't reach the assistant. Check your connection.",
+      explanation: "",
+      whyItMatters: "",
+      vocabulary: "",
+      sources: [],
+      question,
     };
   }
-
-  return {
-    role: "assistant",
-    grounded: true,
-    text: `Short answer: ${best.answer}\n\nWhy this matters: questions on this appear in the knowledge test, so it helps to remember the key terms.`,
-    sourceTitle: best.title,
-    sourceUrl: best.url,
-  };
 }
 
 function AssistantPage() {
   const { q } = Route.useSearch();
-  const { t } = useSettings();
+  const { t, uiLang } = useSettings();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<string>("app");
   const bottom = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const sentInitial = useRef(false);
+  const answerLang = lang === "app" ? uiLang : lang;
 
-  function send(value: string) {
-    const text = value.trim();
-    if (!text || loading) return;
-    setMessages((m) => [...m, { role: "user", text, grounded: true }]);
+  async function send(value: string, opts?: { lang?: string; simple?: boolean }) {
+    const text = value.trim().slice(0, 500);
+    if (text.length < 2 || loading) return;
+    setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
     setLoading(true);
-    setTimeout(() => {
-      setMessages((m) => [...m, demoAnswer(text)]);
-      setLoading(false);
-    }, 600);
+    const reply = await ask(text, opts?.lang ?? answerLang, !!opts?.simple);
+    setMessages((m) => [...m, reply]);
+    setLoading(false);
+    inputRef.current?.focus();
   }
 
   useEffect(() => {
     if (q && !sentInitial.current) {
       sentInitial.current = true;
-      send(q);
+      void send(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
+    bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, loading]);
+
+  const setFeedback = (i: number, f: "up" | "down") =>
+    setMessages((m) => m.map((x, j) => (j === i && x.role === "assistant" ? { ...x, feedback: f } : x)));
 
   return (
     <AppShell>
       <AppHeader title="ASSISTANT" subtitle={t("studyAssistant")} />
 
       <Panel className="mb-4">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <Eyebrow>{t("studyAssistant")}</Eyebrow>
-          <StatusPill status="demo" />
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <Eyebrow>AI study assistant</Eyebrow>
+          <span className="rounded-full bg-accent/10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent">
+            Source-grounded
+          </span>
         </div>
         <p className="text-xs text-muted-foreground text-pretty">
-          Demo mode: answers come from this app's own sample content, offline. No AI service is connected yet, and no
-          answer is guaranteed accurate. Always confirm details on the official IRCC pages.
+          Answers are written by AI using only this app's study material, with sources shown. AI can still make
+          mistakes — check important details on the official Government of Canada pages. Not legal or immigration
+          advice.
         </p>
+        <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+          Answer language
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            className="min-h-10 flex-1 rounded-lg bg-surface px-3 text-sm text-foreground ring-1 ring-line/10"
+          >
+            <option value="app">My app language</option>
+            {ANSWER_LANGS.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </Panel>
 
       <Panel delay={80} className="mb-4">
         {messages.length === 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
-            {STARTERS.map((s) => (
-              <button
-                key={s}
-                onClick={() => send(s)}
-                className="rounded-full bg-line/5 px-3 py-1.5 text-xs ring-1 ring-line/10"
-              >
-                {s}
-              </button>
-            ))}
+          <div className="mb-3">
+            <p className="mb-2 text-xs text-muted-foreground">Try asking:</p>
+            <div className="flex flex-wrap gap-2">
+              {STARTERS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => void send(s)}
+                  className="min-h-10 rounded-full bg-line/5 px-3 py-2 text-xs ring-1 ring-line/10"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-4" aria-live="polite">
           {messages.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ms-auto max-w-[85%] rounded-2xl rounded-br-sm bg-accent px-4 py-3 text-sm text-accent-foreground">
+              <div key={i} className="ms-auto max-w-[85%] rounded-2xl rounded-ee-sm bg-accent px-4 py-3 text-sm text-accent-foreground">
                 {m.text}
               </div>
             ) : (
-              <div key={i} className="space-y-2">
-                <div className="max-w-[92%] whitespace-pre-line rounded-2xl rounded-tl-sm bg-surface p-4 text-sm text-pretty">
-                  {m.text}
+              <div key={i} className="space-y-2" dir={RTL.has(answerLang) ? "rtl" : undefined}>
+                <div
+                  className={`rounded-2xl rounded-ss-sm p-4 text-sm text-pretty ${
+                    m.status === "error" ? "bg-demo/10 text-demo" : "bg-surface"
+                  }`}
+                >
+                  <p className="font-medium">{m.answer}</p>
+                  {m.explanation && <p className="mt-2 text-muted-foreground">{m.explanation}</p>}
+                  {m.whyItMatters && (
+                    <p className="mt-2 text-xs">
+                      <span className="text-accent">Why it matters for the test: </span>
+                      {m.whyItMatters}
+                    </p>
+                  )}
+                  {m.vocabulary && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      <span className="text-foreground">Vocabulary: </span>
+                      {m.vocabulary}
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center gap-3 rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-line/5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground ring-1 ring-line/10">
-                    Src
-                  </span>
-                  <p className="min-w-0 text-xs text-muted-foreground">
-                    {m.sourceTitle}{" "}
-                    {m.sourceUrl && (
-                      <a href={m.sourceUrl} target="_blank" rel="noreferrer noopener" className="text-accent underline">
-                        open
-                      </a>
-                    )}{" "}
-                    · <span className={m.grounded ? "text-verified" : "text-translated"}>
-                      {m.grounded ? "From app content" : "Not covered in app content"}
-                    </span>
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <button
-                    onClick={() => navigator.clipboard?.writeText(m.text)}
-                    className="rounded-full bg-line/5 px-3 py-1.5 ring-1 ring-line/10"
-                  >
-                    Copy answer
-                  </button>
-                  <button className="rounded-full bg-line/5 px-3 py-1.5 ring-1 ring-line/10">👍 Helpful</button>
-                  <button className="rounded-full bg-line/5 px-3 py-1.5 ring-1 ring-line/10">👎 Not helpful</button>
+                {m.status !== "error" &&
+                  m.sources.map((s, k) => (
+                    <div key={k} className="rounded-xl bg-line/5 p-3 text-xs ring-1 ring-line/10" dir="ltr">
+                      <p className="text-foreground">{s.title}</p>
+                      <p className="mt-1 text-muted-foreground">
+                        {s.sourceTitle}
+                        {s.lastVerifiedAt && ` · reviewed ${s.lastVerifiedAt}`}{" "}
+                        {s.url && (
+                          <a href={s.url} target="_blank" rel="noreferrer noopener" className="text-accent underline">
+                            Show source
+                          </a>
+                        )}
+                      </p>
+                      <p className={`mt-1 ${m.status === "answered" ? "text-verified" : "text-translated"}`}>
+                        {m.status === "answered" ? "From approved app content" : "Not covered — see official page"}
+                      </p>
+                    </div>
+                  ))}
+                <div className="flex flex-wrap gap-2 text-xs" dir="ltr">
+                  {m.status === "error" ? (
+                    <button onClick={() => void send(m.question)} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                      Try again
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => navigator.clipboard?.writeText(`${m.answer}\n\n${m.explanation}`)}
+                        className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
+                      >
+                        Copy
+                      </button>
+                      <button onClick={() => void send(m.question, { lang: "en", simple: true })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                        Simple English
+                      </button>
+                      <button onClick={() => void send(m.question, { lang: "fr" })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                        En français
+                      </button>
+                      <button
+                        aria-pressed={m.feedback === "up"}
+                        onClick={() => setFeedback(i, "up")}
+                        className={`min-h-10 rounded-full px-3 ring-1 ring-line/10 ${m.feedback === "up" ? "bg-accent/20 text-accent" : "bg-line/5"}`}
+                      >
+                        Helpful
+                      </button>
+                      <button
+                        aria-pressed={m.feedback === "down"}
+                        onClick={() => setFeedback(i, "down")}
+                        className={`min-h-10 rounded-full px-3 ring-1 ring-line/10 ${m.feedback === "down" ? "bg-demo/20 text-demo" : "bg-line/5"}`}
+                      >
+                        Not helpful
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ),
           )}
-          {loading && <p className="text-sm text-muted-foreground">Looking through the study material…</p>}
+          {loading && (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="size-2 animate-pulse rounded-full bg-accent" /> Checking the study material…
+            </p>
+          )}
           <div ref={bottom} />
         </div>
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            send(input);
+            void send(input);
           }}
-          className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2"
+          className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2"
         >
-          <input
+          <textarea
+            ref={inputRef}
             value={input}
+            maxLength={500}
+            rows={1}
+            dir="auto"
+            aria-label="Your question"
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void send(input);
+              }
+            }}
             placeholder="Ask about the study material…"
-            className="min-w-0 rounded-full bg-surface px-4 py-3 text-sm ring-1 ring-line/10 placeholder:text-muted-foreground"
+            className="max-h-32 min-h-12 min-w-0 resize-none rounded-2xl bg-surface px-4 py-3 text-base ring-1 ring-line/10 placeholder:text-muted-foreground"
           />
-          <button className="shrink-0 rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground">
+          <button
+            disabled={loading || input.trim().length < 2}
+            className="min-h-12 shrink-0 rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground disabled:opacity-50"
+          >
             {t("send")}
           </button>
         </form>
+        <p className="mt-1 text-end text-[10px] text-muted-foreground">{input.length}/500</p>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        {messages.length > 0 && (
           <button
             onClick={() => setMessages([])}
-            className="rounded-full bg-line/5 px-3 py-1.5 text-xs ring-1 ring-line/10"
+            className="mt-2 min-h-10 rounded-full bg-line/5 px-3 text-xs ring-1 ring-line/10"
           >
             {t("clearChat")}
           </button>
-        </div>
+        )}
 
         <ReportIssue label="Report an incorrect answer" />
       </Panel>
