@@ -88,7 +88,7 @@ export function SourceNote({ source }: { source: SourceMeta }) {
 export function ReportIssue({ label }: { label: string }) {
   return (
     <details className="mt-3 rounded-xl bg-line/5 ring-1 ring-line/10">
-      <summary className="cursor-pointer list-none px-3 py-2 text-xs text-muted-foreground">⚑ {label}</summary>
+      <summary className="min-h-11 cursor-pointer list-none px-3 py-3 text-xs text-muted-foreground">⚑ {label}</summary>
       <form
         className="space-y-2 px-3 pb-3"
         onSubmit={(e) => {
@@ -127,7 +127,7 @@ const NAV = [
   { to: "/topics", icon: "≣", key: "topics" as const },
   { to: "/practice", icon: "?", key: "practice" as const },
   { to: "/exam", icon: "◷", key: "exam" as const },
-  { to: "/assistant", icon: "✦", key: "assistant" as const },
+  { to: "/progress", icon: "◔", key: "progress" as const },
 ];
 
 export function BottomNav() {
@@ -142,7 +142,7 @@ export function BottomNav() {
           <Link
             key={item.to}
             to={item.to}
-            className={`flex min-w-0 flex-col items-center gap-0.5 rounded-full px-3 py-2 text-[10px] uppercase tracking-wider ${
+            className={`flex min-w-0 flex-col items-center gap-0.5 min-h-12 justify-center rounded-full px-2.5 py-2 text-[10px] uppercase tracking-wider ${
               active ? "bg-accent/15 font-semibold text-accent" : "text-muted-foreground"
             }`}
           >
@@ -163,11 +163,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="relative flex min-h-screen w-full justify-center overflow-hidden bg-background px-3 py-6 text-foreground">
       <div className="drift pointer-events-none absolute -right-1/4 -top-1/3 aspect-square w-[80%] rounded-full bg-accent/10 blur-[90px]" />
       <div
-        className="drift pointer-events-none absolute -bottom-1/3 -left-1/4 aspect-square w-[70%] rounded-full bg-sky-500/10 blur-[90px]"
+        className="drift pointer-events-none absolute -bottom-1/3 -left-1/4 aspect-square w-[70%] rounded-full bg-verified/10 blur-[90px]"
         style={{ animationDelay: "-8s" }}
       />
       <main className="relative w-full max-w-[420px]">
         {children}
+        <Link
+          to="/assistant"
+          aria-label="Open AI study assistant"
+          className="sticky bottom-24 z-30 ms-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20"
+        >
+          <span aria-hidden="true">✦</span> Ask AI
+        </Link>
         <BottomNav />
         <p className="mt-4 text-center text-[10px] leading-relaxed text-muted-foreground">{t("disclaimer")}</p>
       </main>

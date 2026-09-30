@@ -13,4 +13,4 @@
 
 - All study material and questions live in `src/lib/content.ts` as localized objects with provenance metadata (source, verification date, translation status), so verified content can replace demo content without UI changes.
 - Language/text-size state lives in `src/lib/settings.tsx` and study progress in `src/lib/progress.tsx`, both React contexts persisted to localStorage — the prototype has no backend and no account requirement.
-- The study assistant answers offline from app content in `src/routes/assistant.tsx`; any real model call must go through a server function so provider keys stay server-side.
+- The study assistant calls `/api/assistant` (server route) which retrieves passages from `content.ts` in `src/lib/assistant.server.ts` and asks the model to answer only from them; citations are validated server-side and the key never reaches the browser.
