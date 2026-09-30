@@ -14,13 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_rate_limits: {
+        Row: {
+          bucket: string
+          count: number
+          key_hash: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number
+          key_hash: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          count?: number
+          key_hash?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_ai_rate_limit: {
+        Args: { p_key: string; p_per_day: number; p_per_minute: number }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
