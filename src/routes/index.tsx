@@ -169,11 +169,11 @@ function Home() {
       <Panel delay={300} className="mb-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <Eyebrow>{t("studyAssistant")}</Eyebrow>
-          <StatusPill status="demo" />
+          <span className="text-[10px] uppercase tracking-[0.14em] text-accent">AI · source-grounded</span>
         </div>
         <p className="text-sm text-muted-foreground text-pretty">
-          Ask about the study material and get answers with the source shown. The assistant answers only from this
-          app's approved content.
+          Ask about the study material and get answers with the source shown. AI answers only from this app's approved content
+          and says so when it can't verify something.
         </p>
         <Link
           to="/assistant"
