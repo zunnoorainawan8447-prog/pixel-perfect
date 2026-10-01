@@ -67,12 +67,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      checkMfaState(data.session).finally(() => setLoading(false));
-    });
+    // Get initial session — never let a backend failure block app startup.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        return checkMfaState(data.session);
+      })
+      .catch((e) => {
+        console.warn("[auth] getSession failed (backend unreachable?):", e);
+      })
+      .finally(() => setLoading(false));
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, sess) => {

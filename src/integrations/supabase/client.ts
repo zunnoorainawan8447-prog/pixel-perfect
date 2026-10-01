@@ -42,14 +42,24 @@ function createSupabaseClient() {
       ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    // Don't throw — a missing env var must never white-screen the whole app.
+    // Auth calls will fail gracefully (they're wrapped in try/catch) and the
+    // app remains usable in offline/local mode.
+    console.error(
+      `[Supabase] Missing environment variable(s): ${missing.join(", ")}. ` +
+        `Login/signup will not work until VITE_SUPABASE_URL and ` +
+        `VITE_SUPABASE_PUBLISHABLE_KEY are set.`
+    );
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  // Fall back to inert placeholders so createClient never throws; network
+  // calls fail gracefully and are caught by callers.
+  const url = SUPABASE_URL || "https://placeholder.supabase.co";
+  const key = SUPABASE_PUBLISHABLE_KEY || "placeholder-key";
+
+  return createClient<Database>(url, key, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
+      fetch: createSupabaseFetch(key),
     },
     auth: {
       storage: brokeredPreviewStorage(),
