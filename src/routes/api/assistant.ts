@@ -4,7 +4,48 @@ import { answerQuestion } from "@/lib/assistant.server";
 
 const Body = z.object({
   question: z.string().trim().min(2).max(500),
-  lang: z.enum(["en", "fr", "es", "pa", "ur", "ar", "hi", "zh-Hans", "tl", "de", "pt"]),
+  lang: z.enum([
+    "en",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pl",
+    "nl",
+    "pt",
+    "ro",
+    "hu",
+    "cs",
+    "sk",
+    "bg",
+    "hr",
+    "sr",
+    "sl",
+    "bs",
+    "sq",
+    "el",
+    "tr",
+    "ru",
+    "uk",
+    "sv",
+    "no",
+    "da",
+    "fi",
+    "et",
+    "lv",
+    "lt",
+    "ga",
+    "gd",
+    "cy",
+    "ca",
+    "eu",
+    "gl",
+    "mt",
+    "lb",
+    "is",
+    "mk",
+    "ar",
+  ]),
   simple: z.boolean().optional(),
 });
 
@@ -25,14 +66,24 @@ function limited(key: string) {
 }
 
 const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+  });
 
 export const Route = createFileRoute("/api/assistant")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "anon";
-        if (limited(ip)) return json({ error: "You're asking quickly — please wait a minute and try again." }, 429);
+        const ip =
+          request.headers.get("cf-connecting-ip") ??
+          request.headers.get("x-forwarded-for") ??
+          "anon";
+        if (limited(ip))
+          return json(
+            { error: "You're asking quickly — please wait a minute and try again." },
+            429,
+          );
 
         let parsed;
         try {
@@ -40,18 +91,25 @@ export const Route = createFileRoute("/api/assistant")({
         } catch {
           return json({ error: "Invalid request." }, 400);
         }
-        if (!parsed.success) return json({ error: "Please ask a question between 2 and 500 characters." }, 400);
+        if (!parsed.success)
+          return json({ error: "Please ask a question between 2 and 500 characters." }, 400);
 
         const key = process.env["LOVABLE_API_KEY"];
         if (!key) return json({ error: "The assistant isn't configured yet." }, 503);
 
         try {
-          const result = await answerQuestion(parsed.data.question, parsed.data.lang, !!parsed.data.simple, key);
+          const result = await answerQuestion(
+            parsed.data.question,
+            parsed.data.lang,
+            !!parsed.data.simple,
+            key,
+          );
           return json(result);
         } catch (e) {
           const status = (e as { status?: number }).status;
           console.error("assistant error", status, e);
-          if (status === 429) return json({ error: "The assistant is busy. Please try again shortly." }, 429);
+          if (status === 429)
+            return json({ error: "The assistant is busy. Please try again shortly." }, 429);
           if (status === 402 || status === 403)
             return json({ error: "The assistant is temporarily unavailable." }, 503);
           return json({ error: "Something went wrong. Please try again." }, 502);

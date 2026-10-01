@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue } from "@/components/ui-kit";
+import { LANGUAGES } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/assistant")({
@@ -37,29 +38,14 @@ type Message =
       feedback?: "up" | "down" | undefined;
     };
 
-const STARTERS = [
-  "What are the three parts of Parliament?",
-  "Explain the Charter simply",
-  "Who represents the King in Canada?",
-  "What does the knowledge test cover?",
-];
+const STARTER_KEYS = [
+  "assistant.starter1",
+  "assistant.starter2",
+  "assistant.starter3",
+  "assistant.starter4",
+] as const;
 
-const ANSWER_LANGS: { code: string; label: string }[] = [
-  { code: "en", label: "English" },
-  { code: "fr", label: "Français" },
-  { code: "es", label: "Español" },
-  { code: "pa", label: "ਪੰਜਾਬੀ" },
-  { code: "ur", label: "اردو" },
-  { code: "ar", label: "العربية" },
-  { code: "hi", label: "हिन्दी" },
-  { code: "zh-Hans", label: "简体中文" },
-  { code: "tl", label: "Tagalog" },
-  { code: "de", label: "Deutsch" },
-  { code: "pt", label: "Português" },
-];
-const RTL = new Set(["ur", "ar"]);
-
-async function ask(question: string, lang: string, simple: boolean): Promise<Message> {
+async function ask(question: string, lang: string, simple: boolean, connectionError: string): Promise<Message> {
   try {
     const res = await fetch("/api/assistant", {
       method: "POST",
@@ -73,7 +59,7 @@ async function ask(question: string, lang: string, simple: boolean): Promise<Mes
     return {
       role: "assistant",
       status: "error",
-      answer: e instanceof Error && e.message ? e.message : "Couldn't reach the assistant. Check your connection.",
+      answer: e instanceof Error && e.message ? e.message : connectionError,
       explanation: "",
       whyItMatters: "",
       vocabulary: "",
@@ -101,7 +87,7 @@ function AssistantPage() {
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
     setLoading(true);
-    const reply = await ask(text, opts?.lang ?? answerLang, !!opts?.simple);
+    const reply = await ask(text, opts?.lang ?? answerLang, !!opts?.simple, t("assistant.error"));
     setMessages((m) => [...m, reply]);
     setLoading(false);
     inputRef.current?.focus();
@@ -124,31 +110,29 @@ function AssistantPage() {
 
   return (
     <AppShell>
-      <AppHeader title="ASSISTANT" subtitle={t("studyAssistant")} />
+      <AppHeader title={t("assistant.title")} subtitle={t("assistant.title")} />
 
       <Panel className="mb-4">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <Eyebrow>AI study assistant</Eyebrow>
+          <Eyebrow>{t("assistant.aiEyebrow")}</Eyebrow>
           <span className="rounded-full bg-accent/10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-accent">
-            Source-grounded
+            {t("assistant.groundedBadge")}
           </span>
         </div>
         <p className="text-xs text-muted-foreground text-pretty">
-          Answers are written by AI using only this app's study material, with sources shown. AI can still make
-          mistakes — check important details on the official Government of Canada pages. Not legal or immigration
-          advice.
+          {t("assistant.description")}
         </p>
         <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-          Answer language
+          {t("assistant.answerLanguage")}
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
             className="min-h-10 flex-1 rounded-lg bg-surface px-3 text-sm text-foreground ring-1 ring-line/10"
           >
-            <option value="app">My app language</option>
-            {ANSWER_LANGS.map((l) => (
+            <option value="app">{t("assistant.myAppLanguage")}</option>
+            {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>
-                {l.label}
+                {l.endonym}
               </option>
             ))}
           </select>
@@ -158,15 +142,15 @@ function AssistantPage() {
       <Panel delay={80} className="mb-4">
         {messages.length === 0 && (
           <div className="mb-3">
-            <p className="mb-2 text-xs text-muted-foreground">Try asking:</p>
+            <p className="mb-2 text-xs text-muted-foreground">{t("assistant.tryAsking")}</p>
             <div className="flex flex-wrap gap-2">
-              {STARTERS.map((s) => (
+              {STARTER_KEYS.map((k) => (
                 <button
-                  key={s}
-                  onClick={() => void send(s)}
+                  key={k}
+                  onClick={() => void send(t(k))}
                   className="min-h-10 rounded-full bg-line/5 px-3 py-2 text-xs ring-1 ring-line/10"
                 >
-                  {s}
+                  {t(k)}
                 </button>
               ))}
             </div>
@@ -180,7 +164,7 @@ function AssistantPage() {
                 {m.text}
               </div>
             ) : (
-              <div key={i} className="space-y-2" dir={RTL.has(answerLang) ? "rtl" : undefined}>
+              <div key={i} className="space-y-2" dir={answerLang === "ar" ? "rtl" : undefined}>
                 <div
                   className={`rounded-2xl rounded-ss-sm p-4 text-sm text-pretty ${
                     m.status === "error" ? "bg-demo/10 text-demo" : "bg-surface"
@@ -190,13 +174,13 @@ function AssistantPage() {
                   {m.explanation && <p className="mt-2 text-muted-foreground">{m.explanation}</p>}
                   {m.whyItMatters && (
                     <p className="mt-2 text-xs">
-                      <span className="text-accent">Why it matters for the test: </span>
+                      <span className="text-accent">{t("assistant.whyItMatters")} </span>
                       {m.whyItMatters}
                     </p>
                   )}
                   {m.vocabulary && (
                     <p className="mt-2 text-xs text-muted-foreground">
-                      <span className="text-foreground">Vocabulary: </span>
+                      <span className="text-foreground">{t("assistant.vocabularyLabel")} </span>
                       {m.vocabulary}
                     </p>
                   )}
@@ -207,22 +191,22 @@ function AssistantPage() {
                       <p className="text-foreground">{s.title}</p>
                       <p className="mt-1 text-muted-foreground">
                         {s.sourceTitle}
-                        {s.lastVerifiedAt && ` · reviewed ${s.lastVerifiedAt}`}{" "}
+                        {s.lastVerifiedAt && ` · ${t("settings.reviewedBadge")} ${s.lastVerifiedAt}`}{" "}
                         {s.url && (
                           <a href={s.url} target="_blank" rel="noreferrer noopener" className="text-accent underline">
-                            Show source
+                            {t("assistant.showSource")}
                           </a>
                         )}
                       </p>
                       <p className={`mt-1 ${m.status === "answered" ? "text-verified" : "text-translated"}`}>
-                        {m.status === "answered" ? "From approved app content" : "Not covered — see official page"}
+                        {m.status === "answered" ? t("assistant.fromAppContent") : t("assistant.notCovered")}
                       </p>
                     </div>
                   ))}
                 <div className="flex flex-wrap gap-2 text-xs" dir="ltr">
                   {m.status === "error" ? (
                     <button onClick={() => void send(m.question)} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
-                      Try again
+                      {t("assistant.tryAgain")}
                     </button>
                   ) : (
                     <>
@@ -230,27 +214,27 @@ function AssistantPage() {
                         onClick={() => navigator.clipboard?.writeText(`${m.answer}\n\n${m.explanation}`)}
                         className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
                       >
-                        Copy
+                        {t("assistant.copy")}
                       </button>
                       <button onClick={() => void send(m.question, { lang: "en", simple: true })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
-                        Simple English
+                        {t("assistant.simpleEnglish")}
                       </button>
                       <button onClick={() => void send(m.question, { lang: "fr" })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
-                        En français
+                        {t("assistant.enFrancais")}
                       </button>
                       <button
                         aria-pressed={m.feedback === "up"}
                         onClick={() => setFeedback(i, "up")}
                         className={`min-h-10 rounded-full px-3 ring-1 ring-line/10 ${m.feedback === "up" ? "bg-accent/20 text-accent" : "bg-line/5"}`}
                       >
-                        Helpful
+                        {t("assistant.helpful")}
                       </button>
                       <button
                         aria-pressed={m.feedback === "down"}
                         onClick={() => setFeedback(i, "down")}
                         className={`min-h-10 rounded-full px-3 ring-1 ring-line/10 ${m.feedback === "down" ? "bg-demo/20 text-demo" : "bg-line/5"}`}
                       >
-                        Not helpful
+                        {t("assistant.notHelpful")}
                       </button>
                     </>
                   )}
@@ -260,7 +244,7 @@ function AssistantPage() {
           )}
           {loading && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="size-2 animate-pulse rounded-full bg-accent" /> Checking the study material…
+              <span className="size-2 animate-pulse rounded-full bg-accent" /> {t("assistant.checkingMaterial")}
             </p>
           )}
           <div ref={bottom} />
@@ -279,7 +263,7 @@ function AssistantPage() {
             maxLength={500}
             rows={1}
             dir="auto"
-            aria-label="Your question"
+            aria-label={t("assistant.questionAriaLabel")}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -287,14 +271,14 @@ function AssistantPage() {
                 void send(input);
               }
             }}
-            placeholder="Ask about the study material…"
+            placeholder={t("assistant.inputPlaceholder")}
             className="max-h-32 min-h-12 min-w-0 resize-none rounded-2xl bg-surface px-4 py-3 text-base ring-1 ring-line/10 placeholder:text-muted-foreground"
           />
           <button
             disabled={loading || input.trim().length < 2}
             className="min-h-12 shrink-0 rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground disabled:opacity-50"
           >
-            {t("send")}
+            {t("assistant.send")}
           </button>
         </form>
         <p className="mt-1 text-end text-[10px] text-muted-foreground">{input.length}/500</p>
@@ -304,11 +288,11 @@ function AssistantPage() {
             onClick={() => setMessages([])}
             className="mt-2 min-h-10 rounded-full bg-line/5 px-3 text-xs ring-1 ring-line/10"
           >
-            {t("clearChat")}
+            {t("assistant.clearChat")}
           </button>
         )}
 
-        <ReportIssue label="Report an incorrect answer" />
+        <ReportIssue label={t("assistant.reportIncorrect")} />
       </Panel>
     </AppShell>
   );

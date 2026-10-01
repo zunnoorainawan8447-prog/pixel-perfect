@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AppHeader, AppShell, Eyebrow, Panel, SourceNote, StatusPill } from "@/components/ui-kit";
+import { AppHeader, AppShell, Eyebrow, Panel, SourceNote } from "@/components/ui-kit";
 import { QUESTIONS, TOPICS, pick, questionById, shuffled } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress, type ExamResult } from "@/lib/progress";
@@ -94,14 +94,14 @@ function ExamPage() {
     const answered = Object.keys(activeExam.answers).length;
     return (
       <AppShell>
-        <AppHeader title="MOCK EXAM" subtitle="Practice simulation · not official" />
+        <AppHeader title={t("exam.title")} subtitle={t("exam.simulationNote")} />
         <Panel solid className="mb-4">
           <div className="relative flex items-center justify-between gap-3">
             <div className="min-w-0">
               <Eyebrow>
-                Question {activeExam.index + 1} / {activeExam.questionIds.length}
+                {t("exam.questionOf", { n: activeExam.index + 1, total: activeExam.questionIds.length })}
               </Eyebrow>
-              <p className="font-display text-xl tracking-tight">{answered} answered</p>
+              <p className="font-display text-xl tracking-tight">{t("exam.answeredCount", { n: answered })}</p>
             </div>
             {timeLeft !== null && (
               <p className="shrink-0 font-mono text-2xl tabular-nums text-accent">{fmt(timeLeft)}</p>
@@ -118,7 +118,7 @@ function ExamPage() {
               return (
                 <button
                   key={id}
-                  aria-label={`Question ${idx + 1}`}
+                  aria-label={t("exam.questionAriaLabel", { n: idx + 1 })}
                   onClick={() => setActiveExam({ ...activeExam, index: idx })}
                   className={`size-6 rounded-md ${state}`}
                 />
@@ -159,81 +159,78 @@ function ExamPage() {
                 onClick={() => setActiveExam({ ...activeExam, index: activeExam.index + 1 })}
                 className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-accent-foreground"
               >
-                Next →
+                {t("topics.next")} →
               </button>
             ) : (
               <button
                 onClick={() => setConfirming(true)}
                 className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-accent-foreground"
               >
-                Finish exam
+                {t("exam.finishExam")}
               </button>
             )}
           </div>
           <button onClick={() => setConfirming(true)} className="mt-3 text-xs text-muted-foreground underline">
-            End exam early
+            {t("exam.endExamEarly")}
           </button>
         </Panel>
 
         {confirming && (
           <Panel solid className="mb-4">
             <p className="text-sm text-pretty">
-              End the exam now? {activeExam.questionIds.length - answered} questions are unanswered and will be
-              marked incorrect.
+              {t("exam.confirmEndTitle")}{" "}
+              {t("exam.confirmEnd", { n: activeExam.questionIds.length - answered })}
             </p>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={finish}
                 className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
               >
-                End and see results
+                {t("exam.confirm")}
               </button>
               <button
                 onClick={() => setConfirming(false)}
                 className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10"
               >
-                Keep going
+                {t("exam.cancel")}
               </button>
             </div>
           </Panel>
         )}
 
         <p className="mb-2 text-center text-[11px] text-muted-foreground">
-          Your answers are saved as you go, so closing the app won't lose your progress.
+          {t("exam.autosaveNote")}
         </p>
       </AppShell>
     );
   }
 
-  return <ExamSetup onStart={start} history={exams} t={t} />;
+  return <ExamSetup onStart={start} history={exams} />;
 }
 
 function ExamSetup({
   onStart,
   history,
-  t,
 }: {
   onStart: (count: number, timed: boolean, topicId: string) => void;
   history: ExamResult[];
-  t: (k: "startExam") => string;
 }) {
+  const { studyLang, t } = useSettings();
   const [count, setCount] = useState(20);
   const [timed, setTimed] = useState(true);
   const [topicId, setTopicId] = useState("");
 
   return (
     <AppShell>
-      <AppHeader title="MOCK EXAM" subtitle="Practice simulation · not official" />
+      <AppHeader title={t("exam.title")} subtitle={t("exam.simulationNote")} />
       <Panel className="mb-4">
-        <StatusPill status="demo" />
-        <h1 className="mt-3 font-display text-3xl leading-[1.02] tracking-tight">Set up your exam</h1>
+        <h1 className="mt-1 font-display text-3xl leading-[1.02] tracking-tight">{t("exam.setupTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground text-pretty">
-          This is a practice simulation built from this app's sample questions. It is not the official test and does
-          not predict your result.
+          {t("exam.setupDescription")}
         </p>
 
         <label className="mt-4 block text-xs text-muted-foreground">
-          Number of questions
+          {t("exam.questionCount")}
           <select
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
@@ -241,23 +238,23 @@ function ExamSetup({
           >
             {[10, 15, 20].map((n) => (
               <option key={n} value={n}>
-                {n} questions
+                {t("exam.questionsOption", { n })}
               </option>
             ))}
           </select>
         </label>
 
         <label className="mt-3 block text-xs text-muted-foreground">
-          Topic
+          {t("exam.topicFilter")}
           <select
             value={topicId}
             onChange={(e) => setTopicId(e.target.value)}
             className="mt-1 w-full rounded-lg bg-surface px-3 py-2 text-sm text-foreground ring-1 ring-line/10"
           >
-            <option value="">All topics</option>
+            <option value="">{t("exam.allTopics")}</option>
             {TOPICS.map((topic) => (
               <option key={topic.id} value={topic.id}>
-                {topic.title.en}
+                {pick(topic.title, studyLang).text}
               </option>
             ))}
           </select>
@@ -265,20 +262,20 @@ function ExamSetup({
 
         <label className="mt-3 flex items-center gap-2 text-sm">
           <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} className="size-4" />
-          Timed (90 seconds per question)
+          {t("exam.timedToggle")}
         </label>
 
         <button
           onClick={() => onStart(count, timed, topicId)}
           className="mt-4 w-full rounded-full bg-accent py-3 text-sm font-semibold text-accent-foreground"
         >
-          {t("startExam")}
+          {t("exam.startExam")}
         </button>
       </Panel>
 
       {history.length > 0 && (
         <Panel delay={80} className="mb-4">
-          <Eyebrow>Past attempts</Eyebrow>
+          <Eyebrow>{t("exam.pastAttempts")}</Eyebrow>
           <ul className="mt-2 space-y-2">
             {history.slice(0, 5).map((h) => (
               <li key={h.id} className="flex items-center justify-between text-sm">
@@ -296,38 +293,39 @@ function ExamSetup({
 }
 
 function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void }) {
-  const { studyLang } = useSettings();
+  const { studyLang, t } = useSettings();
   const percent = Math.round((result.correct / result.total) * 100);
 
   return (
     <AppShell>
-      <AppHeader title="RESULTS" subtitle="Practice simulation · not official" />
+      <AppHeader title={t("exam.resultsTitle")} subtitle={t("exam.simulationNote")} />
       <Panel className="mb-4">
-        <Eyebrow>Your score</Eyebrow>
+        <Eyebrow>{t("exam.resultsTitle")}</Eyebrow>
         <p className="mt-1 font-display text-5xl tracking-tight text-accent">{percent}%</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {result.correct} of {result.total} correct · {result.timed ? "timed" : "untimed"}
+          {t("exam.scoreLine", { correct: result.correct, total: result.total })} ·{" "}
+          {result.timed ? t("exam.timedLabel") : t("exam.untimedLabel")}
         </p>
         <p className="mt-2 text-xs text-muted-foreground text-pretty">
-          This score reflects this app's sample questions only. It does not predict the official test result.
+          {t("exam.examDisclaimer")}
         </p>
         <div className="mt-4 flex gap-2">
           <button
             onClick={onRetry}
             className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
           >
-            New exam
+            {t("exam.newExam")}
           </button>
           <Link to="/progress" className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10">
-            See progress
+            {t("exam.seeProgress")}
           </Link>
         </div>
       </Panel>
 
       <Panel delay={80} className="mb-4">
-        <Eyebrow>Review your mistakes ({result.wrongIds.length})</Eyebrow>
+        <Eyebrow>{t("exam.reviewMistakes", { n: result.wrongIds.length })}</Eyebrow>
         <div className="mt-3 space-y-3">
-          {result.wrongIds.length === 0 && <p className="text-sm text-muted-foreground">No mistakes this time.</p>}
+          {result.wrongIds.length === 0 && <p className="text-sm text-muted-foreground">{t("exam.noMistakes")}</p>}
           {result.wrongIds.map((id) => {
             const q = questionById(id)!;
             return (

@@ -33,22 +33,23 @@ function BookmarksPage() {
 
   return (
     <AppShell>
-      <AppHeader title="SAVED" subtitle={t("bookmarks")} />
+      <AppHeader title={t("bookmarks.title")} subtitle={t("bookmarks.title")} />
 
       <Panel className="mb-4">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search bookmarks…"
+          placeholder={t("bookmarks.search")}
+          aria-label={t("bookmarks.search")}
           className="w-full rounded-full bg-surface px-4 py-3 text-sm ring-1 ring-line/10 placeholder:text-muted-foreground"
         />
       </Panel>
 
       <Panel delay={60} className="mb-4">
-        <Eyebrow>Saved questions ({bookmarkedQuestions.length})</Eyebrow>
+        <Eyebrow>{t("bookmarks.savedQuestions", { n: bookmarkedQuestions.length })}</Eyebrow>
         <div className="mt-3 space-y-2">
           {bookmarkedQuestions.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nothing saved yet. Tap ☆ on a practice question.</p>
+            <p className="text-sm text-muted-foreground">{t("bookmarks.emptyQuestions")}</p>
           )}
           {bookmarkedQuestions
             .map((id) => questionById(id)!)
@@ -61,7 +62,7 @@ function BookmarksPage() {
                   onClick={() => toggleQuestionBookmark(q.id)}
                   className="mt-2 text-xs text-muted-foreground underline"
                 >
-                  Remove bookmark
+                  {t("bookmarks.remove")}
                 </button>
               </div>
             ))}
@@ -69,10 +70,10 @@ function BookmarksPage() {
       </Panel>
 
       <Panel delay={120} className="mb-4">
-        <Eyebrow>Saved sections ({sections.length})</Eyebrow>
+        <Eyebrow>{t("bookmarks.savedSections", { n: sections.length })}</Eyebrow>
         <div className="mt-3 space-y-2">
           {sections.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nothing saved yet. Tap ☆ while reading a section.</p>
+            <p className="text-sm text-muted-foreground">{t("bookmarks.emptySections")}</p>
           )}
           {sections
             .filter(({ section }) => filter(section.title.en))
@@ -82,10 +83,10 @@ function BookmarksPage() {
                 <p className="text-xs text-muted-foreground">{pick(topic.title, studyLang).text}</p>
                 <div className="mt-2 flex gap-3 text-xs">
                   <Link to="/topics/$topicId" params={{ topicId: topic.id }} className="text-accent underline">
-                    Continue studying
+                    {t("bookmarks.continueStudying")}
                   </Link>
                   <button onClick={() => toggleSectionBookmark(section.id)} className="text-muted-foreground underline">
-                    Remove
+                    {t("bookmarks.remove")}
                   </button>
                 </div>
               </div>

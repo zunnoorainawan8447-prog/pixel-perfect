@@ -32,6 +32,7 @@ type State = {
   exams: ExamResult[];
   activeExam: ExamInProgress;
   dailyGoal: number;
+  lastStudiedTopicId: string | null;
 };
 
 const DEFAULTS: State = {
@@ -42,6 +43,7 @@ const DEFAULTS: State = {
   exams: [],
   activeExam: null,
   dailyGoal: 10,
+  lastStudiedTopicId: null,
 };
 
 const KEY = "cp.progress.v1";
@@ -55,6 +57,7 @@ type Ctx = State & {
   saveExam: (result: ExamResult) => void;
   setActiveExam: (exam: ExamInProgress) => void;
   clearProgress: () => void;
+  recordStudyVisit: (topicId: string) => void;
   answeredToday: number;
   accuracy: number;
   wrongQuestionIds: string[];
@@ -113,6 +116,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       saveExam: (result) => setState((s) => ({ ...s, exams: [result, ...s.exams].slice(0, 20), activeExam: null })),
       setActiveExam: (exam) => setState((s) => ({ ...s, activeExam: exam })),
       clearProgress: () => setState({ ...DEFAULTS }),
+      recordStudyVisit: (topicId) =>
+        setState((s) => (s.lastStudiedTopicId === topicId ? s : { ...s, lastStudiedTopicId: topicId })),
     };
   }, [state, hydrated]);
 

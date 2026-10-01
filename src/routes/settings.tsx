@@ -24,11 +24,11 @@ function SettingsPage() {
 
   return (
     <AppShell>
-      <AppHeader title="SETTINGS" subtitle={t("settings")} />
+      <AppHeader title={t("settings.title")} subtitle={t("settings.title")} />
 
       <Panel className="mb-4">
-        <Eyebrow>App interface language</Eyebrow>
-        <p className="mt-1 text-xs text-muted-foreground">Menus, buttons and navigation.</p>
+        <Eyebrow>{t("settings.appInterfaceLanguage")}</Eyebrow>
+        <p className="mt-1 text-xs text-muted-foreground">{t("settings.interfaceDescription")}</p>
         <div className="mt-3 space-y-2">
           {LANGUAGES.map((l) => (
             <button
@@ -50,9 +50,9 @@ function SettingsPage() {
       </Panel>
 
       <Panel delay={60} className="mb-4">
-        <Eyebrow>Study content language</Eyebrow>
+        <Eyebrow>{t("settings.studyContentLanguage")}</Eyebrow>
         <p className="mt-1 text-xs text-muted-foreground">
-          Learning text and explanations. You can read in one language while navigating in another.
+          {t("settings.studyDescription")}
         </p>
         <div className="mt-3 space-y-2">
           {LANGUAGES.map((l) => (
@@ -73,13 +73,12 @@ function SettingsPage() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground text-pretty">
-          Machine-translated content has not been checked by a human reviewer. Nothing here is labelled professionally
-          verified unless it has actually been reviewed.
+          {t("settings.machineNote")}
         </p>
       </Panel>
 
       <Panel delay={120} className="mb-4">
-        <Eyebrow>Text size</Eyebrow>
+        <Eyebrow>{t("settings.textSize")}</Eyebrow>
         <div className="mt-3 flex gap-2">
           {(["normal", "large", "xlarge"] as TextSize[]).map((size) => (
             <button
@@ -96,25 +95,24 @@ function SettingsPage() {
       </Panel>
 
       <Panel delay={180} className="mb-4">
-        <Eyebrow>Privacy</Eyebrow>
+        <Eyebrow>{t("settings.privacy")}</Eyebrow>
         <p className="mt-2 text-sm text-muted-foreground text-pretty">
-          Your answers, bookmarks and settings are stored only on this device. No account is needed and nothing is
-          sent to a server in this prototype.
+          {t("settings.privacyText")}
         </p>
       </Panel>
 
       <Panel delay={240} className="mb-4">
-        <Eyebrow>About this app</Eyebrow>
-        <p className="mt-2 text-sm text-muted-foreground text-pretty">{t("disclaimer")}</p>
+        <Eyebrow>{t("settings.about")}</Eyebrow>
+        <p className="mt-2 text-sm text-muted-foreground text-pretty">{t("footer.disclaimer")}</p>
         <div className="mt-3 flex flex-col gap-1 text-sm">
           <a href={OFFICIAL_LINKS.test} target="_blank" rel="noreferrer noopener" className="text-accent underline">
-            Official citizenship test information
+            {t("settings.officialTestLink")}
           </a>
           <a href={OFFICIAL_LINKS.guide} target="_blank" rel="noreferrer noopener" className="text-accent underline">
-            Official study guide
+            {t("settings.officialGuideLink")}
           </a>
           <Link to="/progress" className="text-accent underline">
-            Manage your progress data
+            {t("settings.manageProgress")}
           </Link>
         </div>
       </Panel>

@@ -27,28 +27,28 @@ function ProgressPage() {
 
   return (
     <AppShell>
-      <AppHeader title="PROGRESS" subtitle={t("progress")} />
+      <AppHeader title={t("progress.title")} subtitle={t("progress.title")} />
 
       <Panel className="mb-4">
-        <Eyebrow>Overview</Eyebrow>
+        <Eyebrow>{t("progress.overview")}</Eyebrow>
         <div className="mt-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl">{completedSections.length}</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Sections done</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.sectionsDone")}</p>
           </div>
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl">{attempts.length}</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Questions</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.questionsAnswered")}</p>
           </div>
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl text-accent">{accuracy}%</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Correct</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.accuracy")}</p>
           </div>
         </div>
       </Panel>
 
       <Panel delay={60} className="mb-4">
-        <Eyebrow>Topic completion</Eyebrow>
+        <Eyebrow>{t("progress.topicCompletion")}</Eyebrow>
         <div className="mt-3 space-y-2">
           {TOPICS.map((topic) => {
             const done = topic.sections.filter((s) => completedSections.includes(s.id)).length;
@@ -72,16 +72,16 @@ function ProgressPage() {
             params={{ topicId: nextTopic.id }}
             className="mt-4 inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
           >
-            Suggested next: {pick(nextTopic.title, studyLang).text}
+            {t("progress.suggestedNext", { topic: pick(nextTopic.title, studyLang).text })}
           </Link>
         )}
       </Panel>
 
       <Panel delay={120} className="mb-4">
-        <Eyebrow>{t("wrongAnswers")} ({wrongQuestionIds.length})</Eyebrow>
+        <Eyebrow>{t("exam.reviewMistakes", { n: wrongQuestionIds.length })}</Eyebrow>
         <div className="mt-3 space-y-2">
           {wrongQuestionIds.length === 0 && (
-            <p className="text-sm text-muted-foreground">No incorrect answers to review right now.</p>
+            <p className="text-sm text-muted-foreground">{t("progress.noWrongAnswers")}</p>
           )}
           {wrongQuestionIds.map((id) => {
             const q = questionById(id)!;
@@ -98,7 +98,7 @@ function ProgressPage() {
                   search={{ topic: q.topicId }}
                   className="mt-2 inline-block text-xs text-accent underline"
                 >
-                  {t("retry")} this topic
+                  {t("progress.retryTopic")}
                 </Link>
               </div>
             );
@@ -107,13 +107,13 @@ function ProgressPage() {
       </Panel>
 
       <Panel delay={180} className="mb-4">
-        <Eyebrow>Mock exam history</Eyebrow>
+        <Eyebrow>{t("progress.examHistory")}</Eyebrow>
         <ul className="mt-3 space-y-2">
-          {exams.length === 0 && <p className="text-sm text-muted-foreground">No mock exams yet.</p>}
+          {exams.length === 0 && <p className="text-sm text-muted-foreground">{t("progress.noExams")}</p>}
           {exams.map((e) => (
             <li key={e.id} className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {new Date(e.at).toLocaleString()} · {e.timed ? "timed" : "untimed"}
+                {new Date(e.at).toLocaleString()} · {e.timed ? t("exam.timedLabel") : t("exam.untimedLabel")}
               </span>
               <span className="font-mono text-accent">
                 {e.correct}/{e.total}
@@ -124,17 +124,17 @@ function ProgressPage() {
       </Panel>
 
       <Panel delay={240} className="mb-2">
-        <Eyebrow>Reset</Eyebrow>
+        <Eyebrow>{t("progress.reset")}</Eyebrow>
         <details className="mt-2">
-          <summary className="cursor-pointer text-sm text-muted-foreground">Clear all study progress</summary>
+          <summary className="cursor-pointer text-sm text-muted-foreground">{t("progress.clearProgressLabel")}</summary>
           <p className="mt-2 text-xs text-muted-foreground text-pretty">
-            This deletes your answers, completions, bookmarks and exam history from this device. It cannot be undone.
+            {t("progress.clearProgressDesc")}
           </p>
           <button
             onClick={clearProgress}
             className="mt-2 rounded-full bg-demo/15 px-4 py-2 text-sm font-semibold text-demo ring-1 ring-demo/40"
           >
-            Yes, clear everything
+            {t("progress.confirmClear")}
           </button>
         </details>
       </Panel>

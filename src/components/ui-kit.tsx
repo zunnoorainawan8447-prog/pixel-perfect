@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { SourceMeta, TranslationStatus } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
+import type { StringKey } from "@/lib/strings.generated";
 
 export function Panel({
   children,
@@ -27,26 +28,34 @@ export function Panel({
 }
 
 export function Eyebrow({ children }: { children: ReactNode }) {
-  return <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{children}</p>;
+  return (
+    <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{children}</p>
+  );
 }
 
 export function StatusPill({ status }: { status: TranslationStatus | "demo" | "verified" }) {
+  const { t } = useSettings();
+  const labelKey: Record<TranslationStatus | "demo" | "verified", StringKey> = {
+    reviewed: "settings.reviewedBadge",
+    verified: "cards.verifiedSource.title",
+    machine: "settings.machineTranslatedBadge",
+    unavailable: "settings.notAvailable",
+    demo: "practice.demoContent",
+  };
   const map = {
-    reviewed: { label: "Reviewed translation", color: "text-verified", bg: "bg-verified/10", dot: "bg-verified" },
-    verified: { label: "Verified source", color: "text-verified", bg: "bg-verified/10", dot: "bg-verified" },
+    reviewed: { color: "text-verified", bg: "bg-verified/10", dot: "bg-verified" },
+    verified: { color: "text-verified", bg: "bg-verified/10", dot: "bg-verified" },
     machine: {
-      label: "Machine-translated",
       color: "text-translated",
       bg: "bg-translated/10",
       dot: "bg-translated",
     },
     unavailable: {
-      label: "Not yet available",
       color: "text-muted-foreground",
       bg: "bg-line/5",
       dot: "bg-muted-foreground",
     },
-    demo: { label: "Demo content", color: "text-demo", bg: "bg-demo/10", dot: "bg-demo" },
+    demo: { color: "text-demo", bg: "bg-demo/10", dot: "bg-demo" },
   }[status];
 
   return (
@@ -54,22 +63,24 @@ export function StatusPill({ status }: { status: TranslationStatus | "demo" | "v
       className={`inline-flex items-center gap-1.5 rounded-full ${map.bg} px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${map.color}`}
     >
       <span className={`size-1.5 rounded-full ${map.dot}`} />
-      {map.label}
+      {t(labelKey[status])}
     </span>
   );
 }
 
 export function SourceNote({ source }: { source: SourceMeta }) {
+  const { t } = useSettings();
   return (
     <div className="mt-3 rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
       <p className="text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">Source:</span> {source.sourceTitle}
+        <span className="font-medium text-foreground">{t("topics.source")}:</span>{" "}
+        {source.sourceTitle}
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        Last verified {source.lastVerifiedAt} ·{" "}
+        {t("settings.reviewedBadge")} {source.lastVerifiedAt} ·{" "}
         {source.contentStatus === "demo"
-          ? "Original sample question — not an official exam question"
-          : "Paraphrased from official material"}
+          ? t("topics.demoSourceNote")
+          : t("topics.paraphrasedSourceNote")}
       </p>
       {source.sourceUrl && (
         <a
@@ -78,7 +89,7 @@ export function SourceNote({ source }: { source: SourceMeta }) {
           rel="noreferrer noopener"
           className="mt-1 inline-block text-[11px] text-accent underline underline-offset-2"
         >
-          Open official page
+          {t("cards.officialInfo.button")}
         </a>
       )}
     </div>
@@ -86,9 +97,12 @@ export function SourceNote({ source }: { source: SourceMeta }) {
 }
 
 export function ReportIssue({ label }: { label: string }) {
+  const { t } = useSettings();
   return (
     <details className="mt-3 rounded-xl bg-line/5 ring-1 ring-line/10">
-      <summary className="min-h-11 cursor-pointer list-none px-3 py-3 text-xs text-muted-foreground">⚑ {label}</summary>
+      <summary className="min-h-11 cursor-pointer list-none px-3 py-3 text-xs text-muted-foreground">
+        ⚑ {label}
+      </summary>
       <form
         className="space-y-2 px-3 pb-3"
         onSubmit={(e) => {
@@ -100,34 +114,34 @@ export function ReportIssue({ label }: { label: string }) {
         }}
       >
         <select className="w-full rounded-lg bg-surface px-3 py-2 text-sm ring-1 ring-line/10">
-          <option>Incorrect answer</option>
-          <option>Outdated information</option>
-          <option>Translation problem</option>
-          <option>Unclear explanation</option>
-          <option>Technical issue</option>
+          <option>{t("report.incorrectAnswer")}</option>
+          <option>{t("report.outdatedInfo")}</option>
+          <option>{t("report.translationProblem")}</option>
+          <option>{t("report.unclearExplanation")}</option>
+          <option>{t("report.technicalIssue")}</option>
         </select>
         <textarea
           rows={2}
-          placeholder="Tell us more (optional)"
+          placeholder={t("report.detailsPlaceholder")}
           className="w-full rounded-lg bg-surface px-3 py-2 text-sm ring-1 ring-line/10 placeholder:text-muted-foreground"
         />
         <button className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground">
-          Submit report
+          {t("report.submit")}
         </button>
         <p data-sent className="hidden text-[11px] text-verified">
-          Thanks — reports are stored locally in this prototype.
+          {t("report.thanks")}
         </p>
       </form>
     </details>
   );
 }
 
-const NAV = [
-  { to: "/", icon: "▦", key: "home" as const },
-  { to: "/topics", icon: "≣", key: "topics" as const },
-  { to: "/practice", icon: "?", key: "practice" as const },
-  { to: "/exam", icon: "◷", key: "exam" as const },
-  { to: "/progress", icon: "◔", key: "progress" as const },
+const NAV: { to: string; icon: string; key: StringKey }[] = [
+  { to: "/", icon: "▦", key: "nav.home" },
+  { to: "/topics", icon: "≣", key: "nav.topics" },
+  { to: "/practice", icon: "?", key: "practice.title" },
+  { to: "/exam", icon: "◷", key: "nav.exam" },
+  { to: "/progress", icon: "◔", key: "nav.progress" },
 ];
 
 export function BottomNav() {
@@ -170,13 +184,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
         <Link
           to="/assistant"
-          aria-label="Open AI study assistant"
+          aria-label={t("assistant.openAssistant")}
           className="sticky bottom-24 z-30 ms-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20"
         >
-          <span aria-hidden="true">✦</span> Ask AI
+          <span aria-hidden="true">✦</span> {t("actions.askAi")}
         </Link>
         <BottomNav />
-        <p className="mt-4 text-center text-[10px] leading-relaxed text-muted-foreground">{t("disclaimer")}</p>
+        <p className="mt-4 text-center text-[10px] leading-relaxed text-muted-foreground">
+          {t("footer.disclaimer")}
+        </p>
       </main>
     </div>
   );
@@ -197,7 +213,7 @@ export function AppHeader({ title, subtitle }: { title?: string; subtitle?: stri
           </p>
         </Link>
         <p className="mt-1 truncate text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          {subtitle ?? t("notOfficial")}
+          {subtitle ?? t("header.tagline")}
         </p>
       </div>
       <Link

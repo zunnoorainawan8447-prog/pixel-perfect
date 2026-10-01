@@ -67,10 +67,10 @@ function PracticePage() {
 
   return (
     <AppShell>
-      <AppHeader title="PRACTICE" subtitle={t("practiceQuestion")} />
+      <AppHeader title={t("practice.title")} subtitle={t("practice.title")} />
 
       <Panel className="mb-4">
-        <Eyebrow>Filters</Eyebrow>
+        <Eyebrow>{t("practice.filters")}</Eyebrow>
         <div className="mt-2 grid grid-cols-2 gap-2">
           <select
             value={search.topic ?? ""}
@@ -83,7 +83,7 @@ function PracticePage() {
             }}
             className="rounded-lg bg-surface px-3 py-2 text-sm ring-1 ring-line/10"
           >
-            <option value="">All topics</option>
+            <option value="">{t("practice.allTopics")}</option>
             {TOPICS.map((topic) => (
               <option key={topic.id} value={topic.id}>
                 {pick(topic.title, studyLang).text}
@@ -101,10 +101,10 @@ function PracticePage() {
             }}
             className="rounded-lg bg-surface px-3 py-2 text-sm ring-1 ring-line/10"
           >
-            <option value="">All levels</option>
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
+            <option value="">{t("practice.allLevels")}</option>
+            <option value="easy">{t("practice.easy")}</option>
+            <option value="medium">{t("practice.medium")}</option>
+            <option value="hard">{t("practice.hard")}</option>
           </select>
         </div>
       </Panel>
@@ -112,9 +112,9 @@ function PracticePage() {
       <Panel delay={80} className="mb-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <Eyebrow>
-            {t("practiceQuestion")} {(i % pool.length) + 1} / {pool.length}
+            {t("practice.questionCounter", { n: (i % pool.length) + 1, total: pool.length })}
           </Eyebrow>
-          <StatusPill status={studyLang === "en" ? "demo" : translation} />
+          <StatusPill status={translation} />
         </div>
         <h2 className="mb-4 font-display text-xl leading-tight tracking-tight text-balance">
           {pick(question.prompt, studyLang).text}
@@ -144,12 +144,12 @@ function PracticePage() {
             disabled={selected === null}
             className="mt-4 w-full rounded-full bg-accent py-3 text-sm font-semibold text-accent-foreground disabled:opacity-40"
           >
-            {t("checkAnswer")}
+            {t("practice.checkAnswer")}
           </button>
         ) : (
           <>
             <p className={`mt-4 text-sm font-semibold ${isCorrect ? "text-verified" : "text-demo"}`}>
-              {isCorrect ? t("correct") : t("incorrect")}
+              {isCorrect ? t("practice.correct") : t("practice.incorrect")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground text-pretty">
               {pick(question.explanation, studyLang).text}
@@ -160,7 +160,7 @@ function PracticePage() {
                 onClick={next}
                 className="flex-1 rounded-full bg-accent py-3 text-sm font-semibold text-accent-foreground"
               >
-                {t("nextQuestion")}
+                {t("practice.nextQuestion")}
               </button>
               <button
                 onClick={() => toggleQuestionBookmark(question.id)}
@@ -172,7 +172,7 @@ function PracticePage() {
           </>
         )}
 
-        <ReportIssue label={t("reportIssue")} />
+        <ReportIssue label={t("topics.reportIssue")} />
       </Panel>
     </AppShell>
   );
