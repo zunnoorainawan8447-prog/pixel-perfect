@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader, AppShell, Eyebrow, Panel, StatusPill } from "@/components/ui-kit";
-import { TOPICS, pick } from "@/lib/content";
+import { TOPICS, pick, getLanguage } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress } from "@/lib/progress";
 
@@ -29,11 +29,10 @@ function TopicsPage() {
 
   return (
     <AppShell>
-      <AppHeader title="TOPICS" subtitle={t("topics")} />
+      <AppHeader title={t("topics.title")} subtitle={t("topics.title")} />
       <div className="space-y-3">
         {TOPICS.map((topic, i) => {
           const done = topic.sections.filter((s) => completedSections.includes(s.id)).length;
-          const complete = done === topic.sections.length;
           return (
             <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block">
               <Panel delay={i * 40}>
@@ -51,9 +50,10 @@ function TopicsPage() {
                   </span>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <StatusPill status={complete ? "verified" : "reviewed"} />
+                  <StatusPill status={getLanguage(studyLang).study} />
                   <span className="text-[11px] text-muted-foreground">
-                    {topic.readingMinutes} {t("minRead")} · reviewed {topic.source.lastVerifiedAt}
+                    {t("topics.minRead", { n: topic.readingMinutes })} ·{" "}
+                    {t("topics.reviewedOn", { date: topic.source.lastVerifiedAt })}
                   </span>
                 </div>
               </Panel>
@@ -63,10 +63,9 @@ function TopicsPage() {
       </div>
       <div className="mt-4">
         <Panel>
-          <Eyebrow>Content sources and review dates</Eyebrow>
+          <Eyebrow>{t("topics.sourcesHeading")}</Eyebrow>
           <p className="mt-2 text-xs text-muted-foreground text-pretty">
-            Study text here is paraphrased from the Government of Canada citizenship study guide and reviewed on the
-            dates shown. Practice questions are original sample questions written for this app.
+            {t("topics.sourcesDescription")}
           </p>
         </Panel>
       </div>

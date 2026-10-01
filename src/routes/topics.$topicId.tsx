@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue, SourceNote, StatusPill } from "@/components/ui-kit";
-import { topicById, pick, getLanguage } from "@/lib/content";
+import { topicById, pick, getLanguage, LANGUAGES } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress } from "@/lib/progress";
 
@@ -31,20 +31,23 @@ function TopicPage() {
   const { topicId } = Route.useParams();
   const topic = topicById(topicId)!;
   const { studyLang, t, set } = useSettings();
-  const { completedSections, bookmarkedSections, toggleSectionComplete, toggleSectionBookmark } = useProgress();
+  const { completedSections, bookmarkedSections, toggleSectionComplete, toggleSectionBookmark, recordStudyVisit } = useProgress();
   const [index, setIndex] = useState(0);
+  useEffect(() => {
+    recordStudyVisit(topicId);
+  }, [topicId, recordStudyVisit]);
   const section = topic.sections[index]!;
   const translation = getLanguage(studyLang).study;
 
   return (
     <AppShell>
-      <AppHeader title="TOPIC" subtitle={pick(topic.title, studyLang).text} />
+      <AppHeader title={t("topics.title")} subtitle={pick(topic.title, studyLang).text} />
 
       <Panel className="mb-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <StatusPill status={translation} />
           <span className="text-[11px] text-muted-foreground">
-            {topic.readingMinutes} {t("minRead")}
+            {t("topics.minRead", { n: topic.readingMinutes })}
           </span>
         </div>
         <h1 className="font-display text-3xl leading-[1.02] tracking-tight text-balance">
@@ -65,22 +68,24 @@ function TopicPage() {
           ))}
         </div>
         <label className="mt-3 block text-xs text-muted-foreground">
-          Study content language
+          {t("topics.studyLanguageLabel")}
           <select
             value={studyLang}
             onChange={(e) => set({ studyLang: e.target.value as typeof studyLang })}
             className="mt-1 w-full rounded-lg bg-surface px-3 py-2 text-sm text-foreground ring-1 ring-line/10"
           >
-            <option value="en">English (reviewed)</option>
-            <option value="fr">Français (révisé)</option>
-            <option value="es">Español (machine-translated)</option>
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.endonym} ({l.englishName})
+              </option>
+            ))}
           </select>
         </label>
       </Panel>
 
       <Panel className="mb-4" solid>
         <Eyebrow>
-          Section {index + 1} / {topic.sections.length}
+          {t("topics.section")} {index + 1} / {topic.sections.length}
         </Eyebrow>
         <h2 className="mt-1 font-display text-2xl leading-tight tracking-tight">
           {pick(section.title, studyLang).text}
@@ -95,7 +100,7 @@ function TopicPage() {
 
         {section.vocabulary && (
           <div className="mt-4 rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
-            <Eyebrow>Vocabulary</Eyebrow>
+            <Eyebrow>{t("topics.vocabulary")}</Eyebrow>
             <dl className="mt-2 space-y-2">
               {section.vocabulary.map((v, i) => (
                 <div key={i}>
@@ -118,24 +123,24 @@ function TopicPage() {
                 : "bg-accent text-accent-foreground"
             }`}
           >
-            {completedSections.includes(section.id) ? `✓ ${t("completed")}` : t("markComplete")}
+            {completedSections.includes(section.id) ? `✓ ${t("topics.completed")}` : t("topics.markComplete")}
           </button>
           <button
             onClick={() => toggleSectionBookmark(section.id)}
             className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10"
           >
-            {bookmarkedSections.includes(section.id) ? `★ ${t("bookmarked")}` : `☆ ${t("bookmark")}`}
+            {bookmarkedSections.includes(section.id) ? `★ ${t("topics.bookmarkedSection")}` : `☆ ${t("topics.bookmarkSection")}`}
           </button>
           <Link
             to="/assistant"
             search={{ q: `Explain "${section.title.en}" simply` }}
             className="rounded-full bg-line/5 px-4 py-2 text-sm text-accent ring-1 ring-line/10"
           >
-            ✦ {t("askAi")}
+            ✦ {t("topics.askAssistant")}
           </Link>
         </div>
 
-        <ReportIssue label={t("reportIssue")} />
+        <ReportIssue label={t("topics.reportIssue")} />
       </Panel>
 
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -144,14 +149,14 @@ function TopicPage() {
           onClick={() => setIndex((i) => i - 1)}
           className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10 disabled:opacity-40"
         >
-          ← Previous
+          ← {t("topics.previous")}
         </button>
         {index < topic.sections.length - 1 ? (
           <button
             onClick={() => setIndex((i) => i + 1)}
             className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
           >
-            Next →
+            {t("topics.next")} →
           </button>
         ) : (
           <Link
@@ -159,7 +164,7 @@ function TopicPage() {
             search={{ topic: topic.id }}
             className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
           >
-            Practise this topic →
+            {t("topics.practiceTopic")} →
           </Link>
         )}
       </div>
