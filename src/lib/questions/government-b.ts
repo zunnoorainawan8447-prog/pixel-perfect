@@ -1587,7 +1587,7 @@ export const governmentB: Question[] = [
     options: [{ en: "150" }, { en: "200" }, { en: "250" }, { en: "308" }],
     answerIndex: 3,
     explanation: {
-      en: "Canada is divided into 308 electoral districts and the citizens in each district elect one MP, so 308 MPs sit in the House of Commons.",
+      en: "Canada is divided into 308 electoral districts and the citizens in each district elect one MP, so 308 MPs sit in the House of Commons. (Note: the study guide gives 308; after the 2021 redistribution, Canada now has 343 federal electoral districts.)",
     },
     source: src("Federal Elections"),
   },
