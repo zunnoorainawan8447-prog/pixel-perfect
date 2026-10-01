@@ -13,7 +13,21 @@ export type Passage = {
   lastVerifiedAt: string;
 };
 
-const STOP = new Set(["what", "which", "does", "that", "this", "with", "from", "have", "about", "there", "their", "canada", "canadian"]);
+const STOP = new Set([
+  "what",
+  "which",
+  "does",
+  "that",
+  "this",
+  "with",
+  "from",
+  "have",
+  "about",
+  "there",
+  "their",
+  "canada",
+  "canadian",
+]);
 
 function tokens(s: string) {
   return s
@@ -62,7 +76,10 @@ export function retrieve(query: string, k = 5): Passage[] {
   return corpus()
     .map((p) => {
       const hay = tokens(`${p.title} ${p.title} ${p.text}`);
-      const score = q.reduce((n, w) => n + (hay.some((h) => h.startsWith(w) || w.startsWith(h)) ? 1 : 0), 0);
+      const score = q.reduce(
+        (n, w) => n + (hay.some((h) => h.startsWith(w) || w.startsWith(h)) ? 1 : 0),
+        0,
+      );
       return { p, score };
     })
     .filter((x) => x.score > 0)
@@ -77,13 +94,56 @@ export type AssistantAnswer = {
   explanation: string;
   whyItMatters: string;
   vocabulary: string;
-  sources: { title: string; sourceTitle: string; url?: string | undefined; lastVerifiedAt: string }[];
+  sources: {
+    title: string;
+    sourceTitle: string;
+    url?: string | undefined;
+    lastVerifiedAt: string;
+  }[];
   language: string;
 };
 
 const LANG_NAMES: Record<string, string> = {
-  en: "English", fr: "French", es: "Spanish", pa: "Punjabi", ur: "Urdu", ar: "Arabic",
-  hi: "Hindi", "zh-Hans": "Simplified Chinese", tl: "Tagalog", de: "German", pt: "Portuguese",
+  en: "English",
+  de: "German",
+  fr: "French",
+  es: "Spanish",
+  it: "Italian",
+  pl: "Polish",
+  nl: "Dutch",
+  pt: "Portuguese",
+  ro: "Romanian",
+  hu: "Hungarian",
+  cs: "Czech",
+  sk: "Slovak",
+  bg: "Bulgarian",
+  hr: "Croatian",
+  sr: "Serbian",
+  sl: "Slovenian",
+  bs: "Bosnian",
+  sq: "Albanian",
+  el: "Greek",
+  tr: "Turkish",
+  ru: "Russian",
+  uk: "Ukrainian",
+  sv: "Swedish",
+  no: "Norwegian",
+  da: "Danish",
+  fi: "Finnish",
+  et: "Estonian",
+  lv: "Latvian",
+  lt: "Lithuanian",
+  ga: "Irish",
+  gd: "Scottish Gaelic",
+  cy: "Welsh",
+  ca: "Catalan",
+  eu: "Basque",
+  gl: "Galician",
+  mt: "Maltese",
+  lb: "Luxembourgish",
+  is: "Icelandic",
+  mk: "Macedonian",
+  ar: "Arabic",
 };
 
 function systemPrompt(lang: string, simple: boolean) {
@@ -101,7 +161,11 @@ Reply with ONLY a JSON object, no markdown:
 async function callModel(system: string, user: string, apiKey: string): Promise<string> {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "fetch",
+    },
     body: JSON.stringify({
       model: "openai/gpt-6-astra",
       stream: true,
@@ -146,14 +210,30 @@ async function callModel(system: string, user: string, apiKey: string): Promise<
 
 const NOT_FOUND = "I couldn't verify that information from the approved study material.";
 
-export async function answerQuestion(question: string, lang: string, simple: boolean, apiKey: string): Promise<AssistantAnswer> {
+export async function answerQuestion(
+  question: string,
+  lang: string,
+  simple: boolean,
+  apiKey: string,
+): Promise<AssistantAnswer> {
   const passages = retrieve(question);
-  const official = [{ title: "Government of Canada — citizenship test", sourceTitle: "canada.ca", url: OFFICIAL_LINKS.test, lastVerifiedAt: "" }];
+  const official = [
+    {
+      title: "Government of Canada — citizenship test",
+      sourceTitle: "canada.ca",
+      url: OFFICIAL_LINKS.test,
+      lastVerifiedAt: "",
+    },
+  ];
 
   const block = passages.length
     ? passages.map((p, i) => `[${i + 1}] ${p.title}\n${p.text}`).join("\n\n")
     : "(no passages found)";
-  const raw = await callModel(systemPrompt(lang, simple), `PASSAGES:\n${block}\n\nQUESTION:\n${question}`, apiKey);
+  const raw = await callModel(
+    systemPrompt(lang, simple),
+    `PASSAGES:\n${block}\n\nQUESTION:\n${question}`,
+    apiKey,
+  );
 
   let parsed: Record<string, unknown> = {};
   try {
@@ -163,7 +243,10 @@ export async function answerQuestion(question: string, lang: string, simple: boo
     parsed = {};
   }
   const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "");
-  let status = parsed["status"] === "answered" || parsed["status"] === "out_of_scope" ? parsed["status"] : "not_found";
+  let status =
+    parsed["status"] === "answered" || parsed["status"] === "out_of_scope"
+      ? parsed["status"]
+      : "not_found";
   const ids = Array.isArray(parsed["sourceIds"]) ? (parsed["sourceIds"] as unknown[]) : [];
   // Output validation: only keep citations that point at passages we actually supplied.
   const used = ids
@@ -190,7 +273,12 @@ export async function answerQuestion(question: string, lang: string, simple: boo
     explanation: str(parsed["explanation"], 1200),
     whyItMatters: str(parsed["whyItMatters"], 400),
     vocabulary: str(parsed["vocabulary"], 400),
-    sources: used.map((p) => ({ title: p.title, sourceTitle: p.sourceTitle, url: p.sourceUrl, lastVerifiedAt: p.lastVerifiedAt })),
+    sources: used.map((p) => ({
+      title: p.title,
+      sourceTitle: p.sourceTitle,
+      url: p.sourceUrl,
+      lastVerifiedAt: p.lastVerifiedAt,
+    })),
     language: lang,
   };
 }

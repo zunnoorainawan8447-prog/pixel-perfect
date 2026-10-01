@@ -24,7 +24,7 @@ export const economyTopic = {
           en: "Canada has always been a trading nation, and commerce remains the engine of economic growth. As Canadians, we could not maintain our standard of living without engaging in trade with other nations. In 1988, Canada enacted free trade with the United States, and Mexico became a partner in 1994 in the broader North American Free Trade Agreement (NAFTA), covering over 444 million people and over $1 trillion in merchandise trade in 2008.",
         },
         {
-          en: "Today, Canada has one of the ten largest economies in the world and is part of the G8 group of leading industrialized countries, alongside the United States, Germany, the United Kingdom, Italy, France, Japan, and Russia — a sign of its economic weight.",
+          en: "Today, Canada has one of the ten largest economies in the world and is part of the G7 group of leading industrialized countries, alongside the United States, Germany, the United Kingdom, Italy, France, and Japan — a sign of its economic weight. (Note: the study guide says 'G8' and lists Russia as a member; Russia was suspended in 2014 and the group is now the G7.)",
         },
         {
           en: "Canada's commercial history began with the fur trade: the first companies in Canada were formed during the French and British regimes and competed for furs. The Hudson's Bay Company, with French, British, and Aboriginal employees, came to dominate the trade in the northwest — from Fort Garry (Winnipeg) and Fort Edmonton to Fort Langley and Fort Victoria, trading posts that later became cities.",

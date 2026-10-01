@@ -24,7 +24,7 @@ export const geographyTopic = {
           en: "Canada is the second-largest country on earth — 10 million square kilometres — and borders three oceans: the Pacific, the Atlantic, and the Arctic. Our border with the United States is the world's longest undefended border, and our national motto, from sea to sea, reflects this geography.",
         },
         {
-          en: "Canada has a population of about 34 million people. (Note: the study guide gives 34 million; the population has grown since that edition.) While most Canadians live in cities and towns within 160 kilometres of the U.S. border, we have vast areas of wilderness and many small towns and villages. Our country is commonly divided into five regions: the Atlantic provinces, Central Canada, the Prairie provinces, the West Coast, and the North.",
+          en: "Canada has a population of about 34 million people. (Note: the study guide gives about 34 million; the population has since grown past 41 million.) While most Canadians live in cities and towns within 160 kilometres of the U.S. border, we have vast areas of wilderness and many small towns and villages. Our country is commonly divided into five regions: the Atlantic provinces, Central Canada, the Prairie provinces, the West Coast, and the North.",
         },
         {
           en: "Ottawa, located on the Ottawa River, was chosen as the capital in 1857 by Queen Victoria. Today it is Canada's fourth-largest metropolitan area, and the surrounding National Capital Region — 4,700 square kilometres — preserves and enhances the area's built heritage and natural environment. Canada has ten provinces and three territories, each with its own capital city: know your province's or territory's capital, as well as the capital of Canada.",

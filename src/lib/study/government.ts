@@ -27,7 +27,7 @@ export const governmentTopic = {
           en: "A federal state means power is divided between a central (federal) government and provincial and territorial governments. A parliamentary democracy means the people's elected representatives — Members of Parliament in Ottawa and Members of the Legislative Assembly or National Assembly in the provinces — make laws and hold the government accountable.",
         },
         {
-          en: "A constitutional monarchy means Canada's Head of State is a hereditary Sovereign (King or Queen), who reigns in accordance with the Constitution: the rule of law. The Sovereign is part of Parliament, playing an important, non-partisan role as the focus of citizenship and allegiance. Many Canadians are proud that the Crown links them to 53 other nations through the Commonwealth and to the country's political traditions, though the actual government is in the hands of the Prime Minister and the Cabinet.",
+          en: "A constitutional monarchy means Canada's Head of State is a hereditary Sovereign (King or Queen), who reigns in accordance with the Constitution: the rule of law. The Sovereign is part of Parliament, playing an important, non-partisan role as the focus of citizenship and allegiance. Many Canadians are proud that the Crown links them to 53 other nations through the Commonwealth and to the country's political traditions, though the actual government is in the hands of the Prime Minister and the Cabinet. (Note: the study guide counts 53; the Commonwealth has since grown to 56 member states.)",
         },
       ],
       vocabulary: [
@@ -198,7 +198,7 @@ export const governmentTopic = {
       title: { en: "Elections and Voting" },
       body: [
         {
-          en: "Canadians vote in elections for their representatives. Those representatives make up Parliament, which makes laws and governs the country. Canada is divided into 308 electoral districts, also called ridings or constituencies, for federal elections. (Note: the study guide gives 308; the current number of ridings has grown since that edition.)",
+          en: "Canadians vote in elections for their representatives. Those representatives make up Parliament, which makes laws and governs the country. Canada is divided into 308 electoral districts, also called ridings or constituencies, for federal elections. (Note: the study guide gives 308; after the 2021 redistribution, Canada now has 343 federal electoral districts.)",
         },
         {
           en: "You can vote by secret ballot if you are a Canadian citizen aged 18 or older on voting day, are on the voters' list, and can prove your identity and address. You must vote for only one candidate on the ballot. Elections Canada, an independent agency of Parliament, runs federal elections and referendums. Provincial and territorial elections are run in a similar way.",

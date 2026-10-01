@@ -27,7 +27,7 @@ export const peopleTopic = {
           en: "The French were the first Europeans to establish settlements, beginning with Champlain's fortress at Québec City in 1608. French is one of Canada's two official languages, and French Canadians — the descendants of the habitants of New France — remain a vibrant founding people, concentrated in Quebec but present across the country.",
         },
         {
-          en: "The British came as explorers, traders, Loyalists, and settlers. English is the other official language, and institutions such as parliamentary democracy, the common law, and the constitutional monarchy are British inheritances that still shape Canada today. The British connection also links Canada through the Crown to 53 other nations of the Commonwealth.",
+          en: "The British came as explorers, traders, Loyalists, and settlers. English is the other official language, and institutions such as parliamentary democracy, the common law, and the constitutional monarchy are British inheritances that still shape Canada today. The British connection also links Canada through the Crown to 53 other nations of the Commonwealth. (Note: the study guide counts 53; the Commonwealth has since grown to 56 member states.)",
         },
         {
           en: "Today the term Aboriginal peoples refers to three distinct groups. About 65 percent are First Nations — the term 'Indian' was used in older texts, and 'First Nations' began to be used in the 1970s. About half live on reserve land in roughly 600 communities, while the other half live off-reserve, mainly in urban centres.",
