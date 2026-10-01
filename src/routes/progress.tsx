@@ -10,10 +10,14 @@ export const Route = createFileRoute("/progress")({
       { title: "Your progress — CITIZEN/PREP" },
       {
         name: "description",
-        content: "Topics completed, questions attempted, accuracy, mock exam history and the mistakes to review next.",
+        content:
+          "Topics completed, questions attempted, accuracy, mock exam history and the mistakes to review next.",
       },
       { property: "og:title", content: "Your progress — CITIZEN/PREP" },
-      { property: "og:description", content: "See what you've studied and which questions to review." },
+      {
+        property: "og:description",
+        content: "See what you've studied and which questions to review.",
+      },
     ],
   }),
   component: ProgressPage,
@@ -21,9 +25,12 @@ export const Route = createFileRoute("/progress")({
 
 function ProgressPage() {
   const { studyLang, t } = useSettings();
-  const { completedSections, attempts, accuracy, exams, wrongQuestionIds, clearProgress } = useProgress();
+  const { completedSections, attempts, accuracy, exams, wrongQuestionIds, clearProgress } =
+    useProgress();
 
-  const nextTopic = TOPICS.find((topic) => topic.sections.some((s) => !completedSections.includes(s.id)));
+  const nextTopic = TOPICS.find((topic) =>
+    topic.sections.some((s) => !completedSections.includes(s.id)),
+  );
 
   return (
     <AppShell>
@@ -34,15 +41,21 @@ function ProgressPage() {
         <div className="mt-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl">{completedSections.length}</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.sectionsDone")}</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              {t("progress.sectionsDone")}
+            </p>
           </div>
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl">{attempts.length}</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.questionsAnswered")}</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              {t("progress.questionsAnswered")}
+            </p>
           </div>
           <div className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
             <p className="font-display text-2xl text-accent">{accuracy}%</p>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("progress.accuracy")}</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              {t("progress.accuracy")}
+            </p>
           </div>
         </div>
       </Panel>
@@ -88,7 +101,9 @@ function ProgressPage() {
             return (
               <div key={id} className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
                 <p className="text-sm text-pretty">{pick(q.prompt, studyLang).text}</p>
-                <p className="mt-1 text-sm text-verified">{pick(q.options[q.answerIndex]!, studyLang).text}</p>
+                <p className="mt-1 text-sm text-verified">
+                  {pick(q.options[q.answerIndex]!, studyLang).text}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground text-pretty">
                   {pick(q.explanation, studyLang).text}
                 </p>
@@ -109,11 +124,14 @@ function ProgressPage() {
       <Panel delay={180} className="mb-4">
         <Eyebrow>{t("progress.examHistory")}</Eyebrow>
         <ul className="mt-3 space-y-2">
-          {exams.length === 0 && <p className="text-sm text-muted-foreground">{t("progress.noExams")}</p>}
+          {exams.length === 0 && (
+            <p className="text-sm text-muted-foreground">{t("progress.noExams")}</p>
+          )}
           {exams.map((e) => (
             <li key={e.id} className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {new Date(e.at).toLocaleString()} · {e.timed ? t("exam.timedLabel") : t("exam.untimedLabel")}
+                {new Date(e.at).toLocaleString()} ·{" "}
+                {e.timed ? t("exam.timedLabel") : t("exam.untimedLabel")}
               </span>
               <span className="font-mono text-accent">
                 {e.correct}/{e.total}
@@ -126,7 +144,9 @@ function ProgressPage() {
       <Panel delay={240} className="mb-2">
         <Eyebrow>{t("progress.reset")}</Eyebrow>
         <details className="mt-2">
-          <summary className="cursor-pointer text-sm text-muted-foreground">{t("progress.clearProgressLabel")}</summary>
+          <summary className="cursor-pointer text-sm text-muted-foreground">
+            {t("progress.clearProgressLabel")}
+          </summary>
           <p className="mt-2 text-xs text-muted-foreground text-pretty">
             {t("progress.clearProgressDesc")}
           </p>

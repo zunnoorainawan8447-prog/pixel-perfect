@@ -13,7 +13,10 @@ export const Route = createFileRoute("/settings")({
           "Choose your interface language and study content language, adjust text size, and read the privacy and content policy.",
       },
       { property: "og:title", content: "Settings — CITIZEN/PREP" },
-      { property: "og:description", content: "Language, text size and privacy settings for your study app." },
+      {
+        property: "og:description",
+        content: "Language, text size and privacy settings for your study app.",
+      },
     ],
   }),
   component: SettingsPage,
@@ -41,7 +44,9 @@ function SettingsPage() {
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{l.endonym}</span>
-                <span className="block truncate text-xs text-muted-foreground">{l.englishName}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {l.englishName}
+                </span>
               </span>
               <StatusPill status={l.ui} />
             </button>
@@ -51,9 +56,7 @@ function SettingsPage() {
 
       <Panel delay={60} className="mb-4">
         <Eyebrow>{t("settings.studyContentLanguage")}</Eyebrow>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {t("settings.studyDescription")}
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("settings.studyDescription")}</p>
         <div className="mt-3 space-y-2">
           {LANGUAGES.map((l) => (
             <button
@@ -66,7 +69,9 @@ function SettingsPage() {
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{l.endonym}</span>
-                <span className="block truncate text-xs text-muted-foreground">{l.englishName}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {l.englishName}
+                </span>
               </span>
               <StatusPill status={l.study} />
             </button>
@@ -85,7 +90,9 @@ function SettingsPage() {
               key={size}
               onClick={() => set({ textSize: size })}
               className={`flex-1 rounded-full py-2 text-sm ring-1 ${
-                textSize === size ? "bg-accent/10 font-semibold text-accent ring-accent" : "bg-line/5 ring-line/10"
+                textSize === size
+                  ? "bg-accent/10 font-semibold text-accent ring-accent"
+                  : "bg-line/5 ring-line/10"
               }`}
             >
               {size === "normal" ? "A" : size === "large" ? "A+" : "A++"}
@@ -105,10 +112,20 @@ function SettingsPage() {
         <Eyebrow>{t("settings.about")}</Eyebrow>
         <p className="mt-2 text-sm text-muted-foreground text-pretty">{t("footer.disclaimer")}</p>
         <div className="mt-3 flex flex-col gap-1 text-sm">
-          <a href={OFFICIAL_LINKS.test} target="_blank" rel="noreferrer noopener" className="text-accent underline">
+          <a
+            href={OFFICIAL_LINKS.test}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-accent underline"
+          >
             {t("settings.officialTestLink")}
           </a>
-          <a href={OFFICIAL_LINKS.guide} target="_blank" rel="noreferrer noopener" className="text-accent underline">
+          <a
+            href={OFFICIAL_LINKS.guide}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-accent underline"
+          >
             {t("settings.officialGuideLink")}
           </a>
           <Link to="/progress" className="text-accent underline">

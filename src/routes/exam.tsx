@@ -15,7 +15,10 @@ export const Route = createFileRoute("/exam")({
           "Take a timed practice simulation: choose the number of questions, answer with a timer, then review every mistake with explanations.",
       },
       { property: "og:title", content: "Mock exam — CITIZEN/PREP" },
-      { property: "og:description", content: "A timed practice simulation with full answer review. Not an official exam." },
+      {
+        property: "og:description",
+        content: "A timed practice simulation with full answer review. Not an official exam.",
+      },
     ],
   }),
   component: ExamPage,
@@ -99,12 +102,19 @@ function ExamPage() {
           <div className="relative flex items-center justify-between gap-3">
             <div className="min-w-0">
               <Eyebrow>
-                {t("exam.questionOf", { n: activeExam.index + 1, total: activeExam.questionIds.length })}
+                {t("exam.questionOf", {
+                  n: activeExam.index + 1,
+                  total: activeExam.questionIds.length,
+                })}
               </Eyebrow>
-              <p className="font-display text-xl tracking-tight">{t("exam.answeredCount", { n: answered })}</p>
+              <p className="font-display text-xl tracking-tight">
+                {t("exam.answeredCount", { n: answered })}
+              </p>
             </div>
             {timeLeft !== null && (
-              <p className="shrink-0 font-mono text-2xl tabular-nums text-accent">{fmt(timeLeft)}</p>
+              <p className="shrink-0 font-mono text-2xl tabular-nums text-accent">
+                {fmt(timeLeft)}
+              </p>
             )}
           </div>
           <div className="mt-4 flex flex-wrap gap-1.5">
@@ -135,7 +145,9 @@ function ExamPage() {
             {q.options.map((opt, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveExam({ ...activeExam, answers: { ...activeExam.answers, [qid]: idx } })}
+                onClick={() =>
+                  setActiveExam({ ...activeExam, answers: { ...activeExam.answers, [qid]: idx } })
+                }
                 className={`w-full rounded-xl px-4 py-3 text-start text-sm ring-1 ${
                   activeExam.answers[qid] === idx
                     ? "bg-accent/10 font-semibold ring-accent"
@@ -170,7 +182,10 @@ function ExamPage() {
               </button>
             )}
           </div>
-          <button onClick={() => setConfirming(true)} className="mt-3 text-xs text-muted-foreground underline">
+          <button
+            onClick={() => setConfirming(true)}
+            className="mt-3 text-xs text-muted-foreground underline"
+          >
             {t("exam.endExamEarly")}
           </button>
         </Panel>
@@ -224,7 +239,9 @@ function ExamSetup({
     <AppShell>
       <AppHeader title={t("exam.title")} subtitle={t("exam.simulationNote")} />
       <Panel className="mb-4">
-        <h1 className="mt-1 font-display text-3xl leading-[1.02] tracking-tight">{t("exam.setupTitle")}</h1>
+        <h1 className="mt-1 font-display text-3xl leading-[1.02] tracking-tight">
+          {t("exam.setupTitle")}
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground text-pretty">
           {t("exam.setupDescription")}
         </p>
@@ -261,7 +278,12 @@ function ExamSetup({
         </label>
 
         <label className="mt-3 flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} className="size-4" />
+          <input
+            type="checkbox"
+            checked={timed}
+            onChange={(e) => setTimed(e.target.checked)}
+            className="size-4"
+          />
           {t("exam.timedToggle")}
         </label>
 
@@ -306,9 +328,7 @@ function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void 
           {t("exam.scoreLine", { correct: result.correct, total: result.total })} ·{" "}
           {result.timed ? t("exam.timedLabel") : t("exam.untimedLabel")}
         </p>
-        <p className="mt-2 text-xs text-muted-foreground text-pretty">
-          {t("exam.examDisclaimer")}
-        </p>
+        <p className="mt-2 text-xs text-muted-foreground text-pretty">{t("exam.examDisclaimer")}</p>
         <div className="mt-4 flex gap-2">
           <button
             onClick={onRetry}
@@ -316,7 +336,10 @@ function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void 
           >
             {t("exam.newExam")}
           </button>
-          <Link to="/progress" className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10">
+          <Link
+            to="/progress"
+            className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10"
+          >
             {t("exam.seeProgress")}
           </Link>
         </div>
@@ -325,12 +348,16 @@ function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void 
       <Panel delay={80} className="mb-4">
         <Eyebrow>{t("exam.reviewMistakes", { n: result.wrongIds.length })}</Eyebrow>
         <div className="mt-3 space-y-3">
-          {result.wrongIds.length === 0 && <p className="text-sm text-muted-foreground">{t("exam.noMistakes")}</p>}
+          {result.wrongIds.length === 0 && (
+            <p className="text-sm text-muted-foreground">{t("exam.noMistakes")}</p>
+          )}
           {result.wrongIds.map((id) => {
             const q = questionById(id)!;
             return (
               <div key={id} className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
-                <p className="text-sm font-semibold text-pretty">{pick(q.prompt, studyLang).text}</p>
+                <p className="text-sm font-semibold text-pretty">
+                  {pick(q.prompt, studyLang).text}
+                </p>
                 <p className="mt-1 text-sm text-verified">
                   {pick(q.options[q.answerIndex]!, studyLang).text}
                 </p>

@@ -14,7 +14,10 @@ export const Route = createFileRoute("/bookmarks")({
         content: "Your saved practice questions and study sections, ready to review again.",
       },
       { property: "og:title", content: "Bookmarks — CITIZEN/PREP" },
-      { property: "og:description", content: "Saved questions and study sections for later review." },
+      {
+        property: "og:description",
+        content: "Saved questions and study sections for later review.",
+      },
     ],
   }),
   component: BookmarksPage,
@@ -22,11 +25,14 @@ export const Route = createFileRoute("/bookmarks")({
 
 function BookmarksPage() {
   const { studyLang, t } = useSettings();
-  const { bookmarkedQuestions, bookmarkedSections, toggleQuestionBookmark, toggleSectionBookmark } = useProgress();
+  const { bookmarkedQuestions, bookmarkedSections, toggleQuestionBookmark, toggleSectionBookmark } =
+    useProgress();
   const [query, setQuery] = useState("");
 
   const sections = TOPICS.flatMap((topic) =>
-    topic.sections.filter((s) => bookmarkedSections.includes(s.id)).map((s) => ({ topic, section: s })),
+    topic.sections
+      .filter((s) => bookmarkedSections.includes(s.id))
+      .map((s) => ({ topic, section: s })),
   );
 
   const filter = (text: string) => text.toLowerCase().includes(query.toLowerCase());
@@ -57,7 +63,9 @@ function BookmarksPage() {
             .map((q) => (
               <div key={q.id} className="rounded-xl bg-line/5 p-3 ring-1 ring-line/10">
                 <p className="text-sm text-pretty">{pick(q.prompt, studyLang).text}</p>
-                <p className="mt-1 text-sm text-verified">{pick(q.options[q.answerIndex]!, studyLang).text}</p>
+                <p className="mt-1 text-sm text-verified">
+                  {pick(q.options[q.answerIndex]!, studyLang).text}
+                </p>
                 <button
                   onClick={() => toggleQuestionBookmark(q.id)}
                   className="mt-2 text-xs text-muted-foreground underline"
@@ -82,10 +90,17 @@ function BookmarksPage() {
                 <p className="text-sm font-semibold">{pick(section.title, studyLang).text}</p>
                 <p className="text-xs text-muted-foreground">{pick(topic.title, studyLang).text}</p>
                 <div className="mt-2 flex gap-3 text-xs">
-                  <Link to="/topics/$topicId" params={{ topicId: topic.id }} className="text-accent underline">
+                  <Link
+                    to="/topics/$topicId"
+                    params={{ topicId: topic.id }}
+                    className="text-accent underline"
+                  >
                     {t("bookmarks.continueStudying")}
                   </Link>
-                  <button onClick={() => toggleSectionBookmark(section.id)} className="text-muted-foreground underline">
+                  <button
+                    onClick={() => toggleSectionBookmark(section.id)}
+                    className="text-muted-foreground underline"
+                  >
                     {t("bookmarks.remove")}
                   </button>
                 </div>

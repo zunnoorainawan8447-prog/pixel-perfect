@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue, SourceNote, StatusPill } from "@/components/ui-kit";
+import {
+  AppHeader,
+  AppShell,
+  Eyebrow,
+  Panel,
+  ReportIssue,
+  SourceNote,
+  StatusPill,
+} from "@/components/ui-kit";
 import { topicById, pick, getLanguage, LANGUAGES } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress } from "@/lib/progress";
@@ -13,7 +21,12 @@ export const Route = createFileRoute("/topics/$topicId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Topic unavailable — CITIZEN/PREP" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [
+          { title: "Topic unavailable — CITIZEN/PREP" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     return {
       meta: [
@@ -31,7 +44,13 @@ function TopicPage() {
   const { topicId } = Route.useParams();
   const topic = topicById(topicId)!;
   const { studyLang, t, set } = useSettings();
-  const { completedSections, bookmarkedSections, toggleSectionComplete, toggleSectionBookmark, recordStudyVisit } = useProgress();
+  const {
+    completedSections,
+    bookmarkedSections,
+    toggleSectionComplete,
+    toggleSectionBookmark,
+    recordStudyVisit,
+  } = useProgress();
   const [index, setIndex] = useState(0);
   useEffect(() => {
     recordStudyVisit(topicId);
@@ -53,14 +72,18 @@ function TopicPage() {
         <h1 className="font-display text-3xl leading-[1.02] tracking-tight text-balance">
           {pick(topic.title, studyLang).text}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground text-pretty">{pick(topic.intro, studyLang).text}</p>
+        <p className="mt-2 text-sm text-muted-foreground text-pretty">
+          {pick(topic.intro, studyLang).text}
+        </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {topic.sections.map((s, i) => (
             <button
               key={s.id}
               onClick={() => setIndex(i)}
               className={`rounded-full px-3 py-1.5 text-xs ring-1 ${
-                i === index ? "bg-accent/15 text-accent ring-accent" : "bg-line/5 text-muted-foreground ring-line/10"
+                i === index
+                  ? "bg-accent/15 text-accent ring-accent"
+                  : "bg-line/5 text-muted-foreground ring-line/10"
               }`}
             >
               {i + 1}. {pick(s.title, studyLang).text}
@@ -105,7 +128,9 @@ function TopicPage() {
               {section.vocabulary.map((v, i) => (
                 <div key={i}>
                   <dt className="text-sm font-semibold">{pick(v.term, studyLang).text}</dt>
-                  <dd className="text-sm text-muted-foreground">{pick(v.meaning, studyLang).text}</dd>
+                  <dd className="text-sm text-muted-foreground">
+                    {pick(v.meaning, studyLang).text}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -123,13 +148,17 @@ function TopicPage() {
                 : "bg-accent text-accent-foreground"
             }`}
           >
-            {completedSections.includes(section.id) ? `✓ ${t("topics.completed")}` : t("topics.markComplete")}
+            {completedSections.includes(section.id)
+              ? `✓ ${t("topics.completed")}`
+              : t("topics.markComplete")}
           </button>
           <button
             onClick={() => toggleSectionBookmark(section.id)}
             className="rounded-full bg-line/5 px-4 py-2 text-sm ring-1 ring-line/10"
           >
-            {bookmarkedSections.includes(section.id) ? `★ ${t("topics.bookmarkedSection")}` : `☆ ${t("topics.bookmarkSection")}`}
+            {bookmarkedSections.includes(section.id)
+              ? `★ ${t("topics.bookmarkedSection")}`
+              : `☆ ${t("topics.bookmarkSection")}`}
           </button>
           <Link
             to="/assistant"

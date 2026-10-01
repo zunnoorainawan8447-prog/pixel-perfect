@@ -104,20 +104,28 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       hydrated,
       answeredToday: attempts.filter((a) => isToday(a.at)).length,
       accuracy: attempts.length ? Math.round((correct / attempts.length) * 100) : 0,
-      wrongQuestionIds: [...latestByQuestion.values()].filter((a) => !a.correct).map((a) => a.questionId),
+      wrongQuestionIds: [...latestByQuestion.values()]
+        .filter((a) => !a.correct)
+        .map((a) => a.questionId),
       recordAttempt: (questionId, isCorrect) =>
-        setState((s) => ({ ...s, attempts: [...s.attempts, { questionId, correct: isCorrect, at: Date.now() }] })),
+        setState((s) => ({
+          ...s,
+          attempts: [...s.attempts, { questionId, correct: isCorrect, at: Date.now() }],
+        })),
       toggleSectionComplete: (id) =>
         setState((s) => ({ ...s, completedSections: toggle(s.completedSections, id) })),
       toggleQuestionBookmark: (id) =>
         setState((s) => ({ ...s, bookmarkedQuestions: toggle(s.bookmarkedQuestions, id) })),
       toggleSectionBookmark: (id) =>
         setState((s) => ({ ...s, bookmarkedSections: toggle(s.bookmarkedSections, id) })),
-      saveExam: (result) => setState((s) => ({ ...s, exams: [result, ...s.exams].slice(0, 20), activeExam: null })),
+      saveExam: (result) =>
+        setState((s) => ({ ...s, exams: [result, ...s.exams].slice(0, 20), activeExam: null })),
       setActiveExam: (exam) => setState((s) => ({ ...s, activeExam: exam })),
       clearProgress: () => setState({ ...DEFAULTS }),
       recordStudyVisit: (topicId) =>
-        setState((s) => (s.lastStudiedTopicId === topicId ? s : { ...s, lastStudiedTopicId: topicId })),
+        setState((s) =>
+          s.lastStudiedTopicId === topicId ? s : { ...s, lastStudiedTopicId: topicId },
+        ),
     };
   }, [state, hydrated]);
 

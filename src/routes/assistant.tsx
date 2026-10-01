@@ -17,13 +17,21 @@ export const Route = createFileRoute("/assistant")({
           "Ask questions about the study material and get plain-language answers with the source shown. AI answers grounded in approved study content, with sources.",
       },
       { property: "og:title", content: "Study assistant — CITIZEN/PREP" },
-      { property: "og:description", content: "Plain-language answers grounded in this app's approved study content." },
+      {
+        property: "og:description",
+        content: "Plain-language answers grounded in this app's approved study content.",
+      },
     ],
   }),
   component: AssistantPage,
 });
 
-type Source = { title: string; sourceTitle: string; url?: string | undefined; lastVerifiedAt: string };
+type Source = {
+  title: string;
+  sourceTitle: string;
+  url?: string | undefined;
+  lastVerifiedAt: string;
+};
 type Message =
   | { role: "user"; text: string }
   | {
@@ -45,7 +53,12 @@ const STARTER_KEYS = [
   "assistant.starter4",
 ] as const;
 
-async function ask(question: string, lang: string, simple: boolean, connectionError: string): Promise<Message> {
+async function ask(
+  question: string,
+  lang: string,
+  simple: boolean,
+  connectionError: string,
+): Promise<Message> {
   try {
     const res = await fetch("/api/assistant", {
       method: "POST",
@@ -106,7 +119,9 @@ function AssistantPage() {
   }, [messages, loading]);
 
   const setFeedback = (i: number, f: "up" | "down") =>
-    setMessages((m) => m.map((x, j) => (j === i && x.role === "assistant" ? { ...x, feedback: f } : x)));
+    setMessages((m) =>
+      m.map((x, j) => (j === i && x.role === "assistant" ? { ...x, feedback: f } : x)),
+    );
 
   return (
     <AppShell>
@@ -119,9 +134,7 @@ function AssistantPage() {
             {t("assistant.groundedBadge")}
           </span>
         </div>
-        <p className="text-xs text-muted-foreground text-pretty">
-          {t("assistant.description")}
-        </p>
+        <p className="text-xs text-muted-foreground text-pretty">{t("assistant.description")}</p>
         <label className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
           {t("assistant.answerLanguage")}
           <select
@@ -160,7 +173,10 @@ function AssistantPage() {
         <div className="space-y-4" aria-live="polite">
           {messages.map((m, i) =>
             m.role === "user" ? (
-              <div key={i} className="ms-auto max-w-[85%] rounded-2xl rounded-ee-sm bg-accent px-4 py-3 text-sm text-accent-foreground">
+              <div
+                key={i}
+                className="ms-auto max-w-[85%] rounded-2xl rounded-ee-sm bg-accent px-4 py-3 text-sm text-accent-foreground"
+              >
                 {m.text}
               </div>
             ) : (
@@ -187,39 +203,64 @@ function AssistantPage() {
                 </div>
                 {m.status !== "error" &&
                   m.sources.map((s, k) => (
-                    <div key={k} className="rounded-xl bg-line/5 p-3 text-xs ring-1 ring-line/10" dir="ltr">
+                    <div
+                      key={k}
+                      className="rounded-xl bg-line/5 p-3 text-xs ring-1 ring-line/10"
+                      dir="ltr"
+                    >
                       <p className="text-foreground">{s.title}</p>
                       <p className="mt-1 text-muted-foreground">
                         {s.sourceTitle}
-                        {s.lastVerifiedAt && ` · ${t("settings.reviewedBadge")} ${s.lastVerifiedAt}`}{" "}
+                        {s.lastVerifiedAt &&
+                          ` · ${t("settings.reviewedBadge")} ${s.lastVerifiedAt}`}{" "}
                         {s.url && (
-                          <a href={s.url} target="_blank" rel="noreferrer noopener" className="text-accent underline">
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="text-accent underline"
+                          >
                             {t("assistant.showSource")}
                           </a>
                         )}
                       </p>
-                      <p className={`mt-1 ${m.status === "answered" ? "text-verified" : "text-translated"}`}>
-                        {m.status === "answered" ? t("assistant.fromAppContent") : t("assistant.notCovered")}
+                      <p
+                        className={`mt-1 ${m.status === "answered" ? "text-verified" : "text-translated"}`}
+                      >
+                        {m.status === "answered"
+                          ? t("assistant.fromAppContent")
+                          : t("assistant.notCovered")}
                       </p>
                     </div>
                   ))}
                 <div className="flex flex-wrap gap-2 text-xs" dir="ltr">
                   {m.status === "error" ? (
-                    <button onClick={() => void send(m.question)} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                    <button
+                      onClick={() => void send(m.question)}
+                      className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
+                    >
                       {t("assistant.tryAgain")}
                     </button>
                   ) : (
                     <>
                       <button
-                        onClick={() => navigator.clipboard?.writeText(`${m.answer}\n\n${m.explanation}`)}
+                        onClick={() =>
+                          navigator.clipboard?.writeText(`${m.answer}\n\n${m.explanation}`)
+                        }
                         className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
                       >
                         {t("assistant.copy")}
                       </button>
-                      <button onClick={() => void send(m.question, { lang: "en", simple: true })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                      <button
+                        onClick={() => void send(m.question, { lang: "en", simple: true })}
+                        className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
+                      >
                         {t("assistant.simpleEnglish")}
                       </button>
-                      <button onClick={() => void send(m.question, { lang: "fr" })} className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10">
+                      <button
+                        onClick={() => void send(m.question, { lang: "fr" })}
+                        className="min-h-10 rounded-full bg-line/5 px-3 ring-1 ring-line/10"
+                      >
                         {t("assistant.enFrancais")}
                       </button>
                       <button
@@ -244,7 +285,8 @@ function AssistantPage() {
           )}
           {loading && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="size-2 animate-pulse rounded-full bg-accent" /> {t("assistant.checkingMaterial")}
+              <span className="size-2 animate-pulse rounded-full bg-accent" />{" "}
+              {t("assistant.checkingMaterial")}
             </p>
           )}
           <div ref={bottom} />

@@ -16,7 +16,8 @@ export const Route = createFileRoute("/topics/")({
       { property: "og:title", content: "Study topics — CITIZEN/PREP" },
       {
         property: "og:description",
-        content: "Eight study areas for the Canadian citizenship knowledge test, each with sources and review dates.",
+        content:
+          "Eight study areas for the Canadian citizenship knowledge test, each with sources and review dates.",
       },
     ],
   }),
@@ -34,7 +35,12 @@ function TopicsPage() {
         {TOPICS.map((topic, i) => {
           const done = topic.sections.filter((s) => completedSections.includes(s.id)).length;
           return (
-            <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block">
+            <Link
+              key={topic.id}
+              to="/topics/$topicId"
+              params={{ topicId: topic.id }}
+              className="block"
+            >
               <Panel delay={i * 40}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

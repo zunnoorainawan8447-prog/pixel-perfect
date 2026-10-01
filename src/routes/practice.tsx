@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppHeader, AppShell, Eyebrow, Panel, ReportIssue, SourceNote, StatusPill } from "@/components/ui-kit";
+import {
+  AppHeader,
+  AppShell,
+  Eyebrow,
+  Panel,
+  ReportIssue,
+  SourceNote,
+  StatusPill,
+} from "@/components/ui-kit";
 import { QUESTIONS, TOPICS, getLanguage, pick, shuffled } from "@/lib/content";
 import { useSettings } from "@/lib/settings";
 import { useProgress } from "@/lib/progress";
@@ -13,7 +21,8 @@ export const Route = createFileRoute("/practice")({
     const difficulty = search["difficulty"];
     const out: Search = {};
     if (typeof topic === "string") out.topic = topic;
-    if (difficulty === "easy" || difficulty === "medium" || difficulty === "hard") out.difficulty = difficulty;
+    if (difficulty === "easy" || difficulty === "medium" || difficulty === "hard")
+      out.difficulty = difficulty;
     return out;
   },
   head: () => ({
@@ -25,7 +34,10 @@ export const Route = createFileRoute("/practice")({
           "Answer multiple-choice practice questions with explanations and sources. Filter by topic and difficulty.",
       },
       { property: "og:title", content: "Practice questions — CITIZEN/PREP" },
-      { property: "og:description", content: "Multiple-choice practice with explanations, sources and bookmarks." },
+      {
+        property: "og:description",
+        content: "Multiple-choice practice with explanations, sources and bookmarks.",
+      },
     ],
   }),
   component: PracticePage,
@@ -40,7 +52,8 @@ function PracticePage() {
   const pool = useMemo(() => {
     const filtered = QUESTIONS.filter(
       (q) =>
-        (!search.topic || q.topicId === search.topic) && (!search.difficulty || q.difficulty === search.difficulty),
+        (!search.topic || q.topicId === search.topic) &&
+        (!search.difficulty || q.difficulty === search.difficulty),
     );
     return shuffled(filtered.length ? filtered : QUESTIONS);
   }, [search.topic, search.difficulty]);
@@ -76,7 +89,9 @@ function PracticePage() {
             value={search.topic ?? ""}
             onChange={(e) => {
               const value = e.target.value;
-              navigate({ search: value ? { ...search, topic: value } : { ...search, topic: undefined } });
+              navigate({
+                search: value ? { ...search, topic: value } : { ...search, topic: undefined },
+              });
               setI(0);
               setSubmitted(false);
               setSelected(null);
@@ -94,7 +109,11 @@ function PracticePage() {
             value={search.difficulty ?? ""}
             onChange={(e) => {
               const value = e.target.value as NonNullable<Search["difficulty"]> | "";
-              navigate({ search: value ? { ...search, difficulty: value } : { ...search, difficulty: undefined } });
+              navigate({
+                search: value
+                  ? { ...search, difficulty: value }
+                  : { ...search, difficulty: undefined },
+              });
               setI(0);
               setSubmitted(false);
               setSelected(null);
@@ -148,7 +167,9 @@ function PracticePage() {
           </button>
         ) : (
           <>
-            <p className={`mt-4 text-sm font-semibold ${isCorrect ? "text-verified" : "text-demo"}`}>
+            <p
+              className={`mt-4 text-sm font-semibold ${isCorrect ? "text-verified" : "text-demo"}`}
+            >
               {isCorrect ? t("practice.correct") : t("practice.incorrect")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground text-pretty">
