@@ -12,6 +12,8 @@ import { type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { SettingsProvider } from "../lib/settings";
 import { ProgressProvider } from "../lib/progress";
+import { AuthProvider } from "../lib/auth";
+import { MfaPrompt } from "../components/auth";
 
 function NotFoundComponent() {
   return (
@@ -35,7 +37,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
 
@@ -128,10 +130,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
-        <ProgressProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </ProgressProvider>
+        <AuthProvider>
+          <ProgressProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            {/* Blocking 2FA prompt when a signed-in session still needs its MFA code. */}
+            <MfaPrompt />
+          </ProgressProvider>
+        </AuthProvider>
       </SettingsProvider>
     </QueryClientProvider>
   );
