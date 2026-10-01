@@ -11,10 +11,18 @@ node_modules
 dist
 dist-ssr
 .output
+.vercel
 .vinxi
 .tanstack/**
 .nitro
 *.local
+
+# Environment / secrets — never commit
+.env
+.env.*
+
+# Local npm lock (repo uses bun.lock)
+package-lock.json
 
 # Wrangler / Cloudflare
 .wrangler/

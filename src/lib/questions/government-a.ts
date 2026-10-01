@@ -149,7 +149,7 @@ export const governmentA: Question[] = [
     options: [{ en: "308" }, { en: "338" }, { en: "250" }, { en: "415" }],
     answerIndex: 0,
     explanation: {
-      en: "Canada is divided into 308 electoral districts, also known as ridings or constituencies.",
+      en: "Canada is divided into 308 electoral districts, also known as ridings or constituencies. (Note: the study guide gives 308; after the 2021 redistribution, Canada now has 343 federal electoral districts.)",
     },
     source: src("Federal Elections"),
   },
@@ -166,7 +166,7 @@ export const governmentA: Question[] = [
     ],
     answerIndex: 1,
     explanation: {
-      en: "Canada is divided into 308 electoral districts, also known as ridings or constituencies.",
+      en: "Canada is divided into 308 electoral districts, also known as ridings or constituencies. (Note: the study guide gives 308; after the 2021 redistribution, Canada now has 343 federal electoral districts.)",
     },
     source: src("Federal Elections"),
   },
